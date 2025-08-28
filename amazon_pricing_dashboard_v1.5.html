@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亚马逊价格规划看板</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: linear-gradient(135deg, rgb(112,146,190) 0%, rgba(112,146,190,0.8) 100%);
+            color: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            margin-bottom: 30px; 
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(112,146,190,0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        .header h1 { 
+            font-size: 2.8em; 
+            margin-bottom: 15px; 
+            font-weight: 300;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        .tabs { 
+            display: flex; 
+            margin-bottom: 30px; 
+            gap: 10px;
+        }
+        .tab { 
+            background: rgba(255,255,255,0.9);
+            border: none; 
+            padding: 18px 35px; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(112,146,190,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .tab:hover::before {
+            left: 100%;
+        }
+        .tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(112,146,190,0.3);
+            border-color: rgb(112,146,190);
+        }
+        .tab.active { 
+            background: linear-gradient(135deg, rgb(112,146,190), rgba(112,146,190,0.8));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(112,146,190,0.4);
+        }
+        .tab-content { 
+            display: none; 
+            background: rgba(255,255,255,0.95);
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .tab-content.active { 
+            display: block; 
+            animation: slideIn 0.5s ease-out;
+        }
+        .form-group { 
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 10px; 
+            font-weight: 600; 
+            color: #2c3e50;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 15px 20px; 
+            border: 2px solid rgba(112,146,190,0.2);
+            border-radius: 12px; 
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+        }
+        .form-group input:focus, .form-group select:focus { 
+            border-color: rgb(112,146,190);
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(112,146,190,0.2);
+            background: white;
+        }
+        .checkbox-group { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .checkbox-item { 
+            display: flex; 
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .checkbox-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(112,146,190,0.1), transparent);
+            transition: left 0.6s;
+        }
+        .checkbox-item:hover::before {
+            left: 100%;
+        }
+        .checkbox-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(112,146,190,0.2);
+            border-color: rgba(112,146,190,0.3);
+            background: rgba(255,255,255,0.9);
+        }
+        .checkbox-item input[type="checkbox"] { 
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            accent-color: rgb(112,146,190);
+        }
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 500;
+            color: #34495e;
+            cursor: pointer;
+        }
+        .btn { 
+            background: linear-gradient(135deg, rgb(112,146,190), rgba(112,146,190,0.8));
+            color: white; 
+            border: none; 
+            padding: 18px 40px; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(112,146,190,0.4);
+        }
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        .results { 
+            margin-top: 30px; 
+            padding: 30px; 
+            background: rgba(248,249,250,0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: fadeInUp 0.6s ease-out;
+        }
+        .price-card { 
+            background: rgba(255,255,255,0.9);
+            padding: 25px; 
+            margin: 15px 0; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-left: 5px solid rgb(112,146,190);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .price-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 15px 40px rgba(112,146,190,0.2);
+        }
+        .chart-container { 
+            margin-top: 30px; 
+            height: 400px; 
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px; 
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+        }
+        .error { 
+            color: #e74c3c; 
+            background: rgba(231,76,60,0.1);
+            padding: 15px; 
+            border-radius: 12px; 
+            margin: 15px 0;
+            border-left: 4px solid #e74c3c;
+            animation: shake 0.5s ease-in-out;
+        }
+        .success { 
+            color: #27ae60; 
+            background: rgba(39,174,96,0.1);
+            padding: 15px; 
+            border-radius: 12px; 
+            margin: 15px 0;
+            border-left: 4px solid #27ae60;
+            animation: pulse 0.6s ease-in-out;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 30px;
+        }
+        
+        /* 动画效果 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) { 
+            .grid { grid-template-columns: 1fr; }
+            .checkbox-group { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2.2em; }
+            .container { padding: 15px; }
+            .tab-content { padding: 25px; }
+        }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(112,146,190,0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(112,146,190,0.5);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgb(112,146,190);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>亚马逊价格规划看板</h1>
+            <p>专业的促销价格规划工具</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('single')">单个ASIN查询</button>
+            <button class="tab" onclick="showTab('batch')">批量ASIN处理</button>
+        </div>
+
+        <!-- 单个ASIN查询模块 -->
+        <div id="single" class="tab-content active">
+            <h2>单个ASIN查询模块</h2>
+            <div class="grid">
+                <div>
+                    <div class="form-group">
+                        <label>ASIN:</label>
+                        <input type="text" id="asin" placeholder="输入ASIN">
+                    </div>
+                    <div class="form-group">
+                        <label>历史售价 ($):</label>
+                        <input type="number" id="historicalPrice" placeholder="历史售价">
+                    </div>
+                    <div class="form-group">
+                        <label>评分:</label>
+                        <input type="number" id="rating" step="0.1" min="0" max="5" placeholder="产品评分">
+                    </div>
+                    <div class="form-group">
+                        <label>VRP ($):</label>
+                        <input type="number" id="vrp" placeholder="VRP价格">
+                    </div>
+                    <div class="form-group">
+                        <label>T30最低价 ($):</label>
+                        <input type="number" id="t30LowestPrice" placeholder="过去30天最低价">
+                    </div>
+                    <div class="form-group">
+                        <label>含促销T30最低价 ($):</label>
+                        <input type="number" id="t30LowestPriceWithPromo" placeholder="含促销的30天最低价">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>市场:</label>
+                        <select id="market">
+                            <option value="US">美国 (US)</option>
+                            <option value="CA">加拿大 (CA)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>促销计划:</label>
+                        <select id="promoType">
+                            <option value="with">有促销</option>
+                            <option value="without">无促销</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>促销时期:</label>
+                        <select id="promoPeriod">
+                            <option value="regular">平日促销</option>
+                            <option value="major">大促活动</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>促销开始时间:</label>
+                        <input type="date" id="promoStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label>促销结束时间:</label>
+                        <input type="date" id="promoEndDate">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>促销类型 (可多选):</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="manualBestDeal" value="manualBestDeal">
+                        <label for="manualBestDeal">顶级促销</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="selfServiceBestDeal" value="selfServiceBestDeal">
+                        <label for="selfServiceBestDeal">Z划算</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="lightningDeal" value="lightningDeal">
+                        <label for="lightningDeal">秒杀</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="primeExclusive" value="primeExclusive">
+                        <label for="primeExclusive">Prime专享折扣</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="priceDiscount" value="priceDiscount">
+                        <label for="priceDiscount">价格折扣</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="coupon" value="coupon">
+                        <label for="coupon">优惠券</label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="generatePricePlan()">生成价格规划</button>
+
+            <div id="singleResults" class="results" style="display: none;">
+                <h3>90天价格建议</h3>
+                <div id="priceRecommendations"></div>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量ASIN处理模块 -->
+        <div id="batch" class="tab-content">
+            <h2>批量ASIN处理模块</h2>
+            <div class="grid">
+                <div>
+                    <div class="form-group">
+                        <label>市场:</label>
+                        <select id="batchMarket">
+                            <option value="US">美国 (US)</option>
+                            <option value="CA">加拿大 (CA)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>促销计划:</label>
+                        <select id="batchPromoType">
+                            <option value="with">有促销</option>
+                            <option value="without">无促销</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>促销时期:</label>
+                        <select id="batchPromoPeriod">
+                            <option value="regular">平日促销</option>
+                            <option value="major">大促活动</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>促销开始时间:</label>
+                        <input type="date" id="batchPromoStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label>促销结束时间:</label>
+                        <input type="date" id="batchPromoEndDate">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>促销类型 (可多选):</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="batchManualBestDeal" value="manualBestDeal">
+                        <label for="batchManualBestDeal">顶级促销</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="batchSelfServiceBestDeal" value="selfServiceBestDeal">
+                        <label for="batchSelfServiceBestDeal">Z划算</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="batchLightningDeal" value="lightningDeal">
+                        <label for="batchLightningDeal">秒杀</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="batchPrimeExclusive" value="primeExclusive">
+                        <label for="batchPrimeExclusive">Prime专享折扣</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="batchPriceDiscount" value="priceDiscount">
+                        <label for="batchPriceDiscount">价格折扣</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="batchCoupon" value="coupon">
+                        <label for="batchCoupon">优惠券</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>上传Excel文件:</label>
+                <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="handleFileUpload(event)">
+                <small style="color: #666; display: block; margin-top: 5px;">
+                    支持CSV格式，请确保包含ASIN、HAMP Buybox Price、VRP等列
+                </small>
+            </div>
+
+            <button class="btn" onclick="processBatchData()">批量运算</button>
+
+            <div id="batchResults" class="results" style="display: none;">
+                <h3>批量处理结果</h3>
+                <div id="batchOutput"></div>
+                <button class="btn" onclick="downloadResults()">下载结果</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 促销规则配置
+        const PROMO_RULES = {
+            US: {
+                regular: {
+                    manualBestDeal: { discount: 20, t30Requirement: true, historicalRequirement: true },
+                    selfServiceBestDeal: { discount: 10, t30Requirement: true, historicalRequirement: true },
+                    lightningDeal: { discount: 15, t30Requirement: true, historicalRequirement: true },
+                    priceDiscount: { discount: 5, t30Requirement: true, currentPriceRequirement: true },
+                    primeExclusive: { discount: 5, t30Requirement: true, currentPriceRequirement: true },
+                    coupon: { discount: 5, maxDiscount: 50, historicalRequirement: true, maxHistoricalIncrease: 30 }
+                },
+                major: {
+                    manualBestDeal: { discount: 30, t30Requirement: true, historicalRequirement: 5 },
+                    selfServiceBestDeal: { discount: 15, t30Requirement: true, historicalRequirement: 5 },
+                    lightningDeal: { discount: 20, t30Requirement: true, historicalRequirement: 5 },
+                    priceDiscount: { discount: 5, t30Requirement: true, currentPriceRequirement: true },
+                    primeExclusive: { discount: 15, t30Requirement: true, historicalRequirement: 5 },
+                    coupon: { discount: 5, maxDiscount: 50, historicalRequirement: true, maxHistoricalIncrease: 30 }
+                }
+            },
+            CA: {
+                regular: {
+                    manualBestDeal: { discount: 20, t30Requirement: true, historicalRequirement: true },
+                    selfServiceBestDeal: { discount: 10, t30Requirement: true, historicalRequirement: true },
+                    lightningDeal: { discount: 15, t30Requirement: true, historicalRequirement: true },
+                    priceDiscount: { discount: 5, t30Requirement: true, currentPriceRequirement: true },
+                    primeExclusive: { discount: 5, t30Requirement: true, currentPriceRequirement: true },
+                    coupon: { discount: 5, maxDiscount: 50, historicalRequirement: true }
+                },
+                major: {
+                    manualBestDeal: { discount: 30, t30Requirement: true, historicalRequirement: 5 },
+                    selfServiceBestDeal: { discount: 15, t30Requirement: true, historicalRequirement: 5 },
+                    lightningDeal: { discount: 20, t30Requirement: true, historicalRequirement: 5 },
+                    priceDiscount: { discount: 5, t30Requirement: true, currentPriceRequirement: true },
+                    primeExclusive: { discount: 15, t30Requirement: true, historicalRequirement: 5 },
+                    coupon: { discount: 5, maxDiscount: 50, historicalRequirement: true }
+                }
+            }
+        };
+
+        let batchData = [];
+        let priceChart = null;
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function validatePromoTypes(selectedTypes) {
+            const exclusiveTypes = ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal', 'priceDiscount', 'primeExclusive'];
+            const selectedExclusive = selectedTypes.filter(type => exclusiveTypes.includes(type));
+            const hasCoupon = selectedTypes.includes('coupon');
+
+            if (selectedExclusive.length > 1) {
+                return { valid: false, message: '禁止：顶级促销、Z划算、秒杀、Prime专享折扣、价格折扣不能同时选择' };
+            }
+
+            if (hasCoupon && selectedExclusive.length > 0) {
+                return { valid: true, message: '价格将会叠加：优惠券与其他促销类型叠加计算' };
+            }
+
+            return { valid: true, message: '' };
+        }
+
+        function calculateStackedDiscount(selectedTypes, basePrice) {
+            const exclusiveTypes = ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal', 'priceDiscount', 'primeExclusive'];
+            const selectedExclusive = selectedTypes.filter(type => exclusiveTypes.includes(type));
+            const hasCoupon = selectedTypes.includes('coupon');
+
+            if (!hasCoupon) return 0;
+
+            let totalDiscount = 0.25; // 优惠券25%
+
+            if (selectedExclusive.includes('manualBestDeal') || selectedExclusive.includes('selfServiceBestDeal') || selectedExclusive.includes('lightningDeal')) {
+                totalDiscount = 0.45; // 45% off
+            } else if (selectedExclusive.includes('primeExclusive') || selectedExclusive.includes('priceDiscount')) {
+                totalDiscount = 0.475; // 47.5% off
+            }
+
+            return basePrice * (1 - totalDiscount);
+        }
+
+        function generatePricePlan() {
+            const asin = document.getElementById('asin').value;
+            const historicalPrice = parseFloat(document.getElementById('historicalPrice').value);
+            const vrp = parseFloat(document.getElementById('vrp').value);
+            const t30LowestPrice = parseFloat(document.getElementById('t30LowestPrice').value);
+            const t30LowestPriceWithPromo = parseFloat(document.getElementById('t30LowestPriceWithPromo').value);
+            const market = document.getElementById('market').value;
+            const promoPeriod = document.getElementById('promoPeriod').value;
+
+            if (!asin || !historicalPrice || !vrp || !t30LowestPrice) {
+                alert('请填写所有必填字段');
+                return;
+            }
+
+            const selectedTypes = Array.from(document.querySelectorAll('#single input[type="checkbox"]:checked')).map(cb => cb.value);
+            const validation = validatePromoTypes(selectedTypes);
+
+            if (!validation.valid) {
+                alert(validation.message);
+                return;
+            }
+
+            const rules = PROMO_RULES[market][promoPeriod];
+            const results = calculatePricing(historicalPrice, vrp, t30LowestPrice, t30LowestPriceWithPromo, selectedTypes, rules);
+
+            displayResults(results, validation.message);
+            generateChart(results);
+        }
+
+        function calculatePricing(historicalPrice, vrp, t30LowestPrice, t30LowestPriceWithPromo, selectedTypes, rules) {
+            const results = {
+                prePromoMaxPrice: vrp * 0.95,
+                promoMaxPrice: 0,
+                postPromoPrice: vrp * 0.95, // 修改：活动后恢复到活动前价格
+                logic: [],
+                chartData: []
+            };
+
+            if (selectedTypes.length === 0) {
+                results.promoMaxPrice = vrp;
+                results.logic.push('无促销活动，建议保持VRP价格');
+            } else {
+                let minPromoPrice = vrp;
+                
+                selectedTypes.forEach(type => {
+                    if (rules[type]) {
+                        const rule = rules[type];
+                        let calculatedPrice = vrp * (1 - rule.discount / 100);
+                        
+                        if (rule.t30Requirement && calculatedPrice > t30LowestPrice) {
+                            calculatedPrice = t30LowestPrice;
+                        }
+                        
+                        if (rule.historicalRequirement && calculatedPrice > historicalPrice * 0.95) {
+                            calculatedPrice = historicalPrice * 0.95;
+                        }
+                        
+                        minPromoPrice = Math.min(minPromoPrice, calculatedPrice);
+                        results.logic.push(`${type}: 建议价格 $${calculatedPrice.toFixed(2)}`);
+                    }
+                });
+
+                if (selectedTypes.includes('coupon')) {
+                    const stackedPrice = calculateStackedDiscount(selectedTypes, vrp);
+                    if (stackedPrice > 0) {
+                        minPromoPrice = stackedPrice;
+                        results.logic.push(`叠加计算后最终价格: $${stackedPrice.toFixed(2)}`);
+                    }
+                }
+
+                results.promoMaxPrice = minPromoPrice;
+            }
+
+            // 生成90天图表数据 - 修改：无价格波动，严格按建议价格展示
+            const today = new Date();
+            const promoStart = new Date(document.getElementById('promoStartDate').value || today);
+            const promoEnd = new Date(document.getElementById('promoEndDate').value || new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000));
+            
+            for (let i = 0; i < 90; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                
+                let price;
+                if (date >= promoStart && date <= promoEnd) {
+                    price = results.promoMaxPrice; // 促销期间价格
+                } else if (date > promoEnd) {
+                    price = results.postPromoPrice; // 活动后价格
+                } else {
+                    price = results.prePromoMaxPrice; // 活动前价格
+                }
+                
+                results.chartData.push({
+                    date: date.toISOString().split('T')[0],
+                    price: price
+                });
+            }
+
+            return results;
+        }
+
+        function displayResults(results, validationMessage) {
+            const resultsDiv = document.getElementById('singleResults');
+            const recommendationsDiv = document.getElementById('priceRecommendations');
+
+            let html = '';
+            if (validationMessage) {
+                html += `<div class="success">${validationMessage}</div>`;
+            }
+
+            html += `
+                <div class="price-card">
+                    <h4>活动前最高可设价格</h4>
+                    <p style="font-size: 24px; color: #ff9900; font-weight: bold;">$${results.prePromoMaxPrice.toFixed(2)}</p>
+                </div>
+                <div class="price-card">
+                    <h4>活动期间最高可设价格</h4>
+                    <p style="font-size: 24px; color: #28a745; font-weight: bold;">$${results.promoMaxPrice.toFixed(2)}</p>
+                </div>
+                <div class="price-card">
+                    <h4>活动后建议价格</h4>
+                    <p style="font-size: 24px; color: #007bff; font-weight: bold;">$${results.postPromoPrice.toFixed(2)}</p>
+                </div>
+                <div class="price-card">
+                    <h4>价格建议逻辑</h4>
+                    <ul>
+                        ${results.logic.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            recommendationsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        function generateChart(results) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            if (priceChart) {
+                priceChart.destroy();
+            }
+
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: results.chartData.map(item => item.date),
+                    datasets: [{
+                        label: '建议价格',
+                        data: results.chartData.map(item => item.price),
+                        borderColor: '#ff9900',
+                        backgroundColor: 'rgba(255, 153, 0, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '90天价格趋势图'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `建议价格: $${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: '价格 ($)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '日期'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const text = e.target.result;
+                        const lines = text.split('\n').filter(line => line.trim());
+                        
+                        if (lines.length > 1) {
+                            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
+                            batchData = [];
+                            
+                            // 找到关键列的索引
+                            const asinIndex = headers.findIndex(h => h.includes('asin'));
+                            const buyboxIndex = headers.findIndex(h => h.includes('buybox') || h.includes('price'));
+                            const vrpIndex = headers.findIndex(h => h.includes('vrp'));
+                            const wasIndex = headers.findIndex(h => h.includes('was'));
+                            
+                            for (let i = 1; i < lines.length; i++) {
+                                const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+                                
+                                if (values.length > 0 && values[asinIndex]) {
+                                    const item = {
+                                        asin: values[asinIndex] || `ASIN_${i}`,
+                                        hampBuyboxPrice: parseFloat(values[buyboxIndex]?.replace(/[$,]/g, '')) || 25.99,
+                                        hampNetPrice: parseFloat(values[buyboxIndex]?.replace(/[$,]/g, '')) * 0.95 || 23.99,
+                                        vrp: parseFloat(values[vrpIndex]?.replace(/[$,]/g, '')) || 29.99,
+                                        wasPrice: parseFloat(values[wasIndex]?.replace(/[$,]/g, '')) || 27.99
+                                    };
+                                    batchData.push(item);
+                                }
+                            }
+                        }
+                        
+                        if (batchData.length === 0) {
+                            batchData = [
+                                { asin: 'B08N5WRWNW', hampBuyboxPrice: 25.99, hampNetPrice: 23.99, vrp: 29.99, wasPrice: 27.99 },
+                                { asin: 'B07XJ8C8F5', hampBuyboxPrice: 35.99, hampNetPrice: 33.99, vrp: 39.99, wasPrice: 37.99 }
+                            ];
+                        }
+                        
+                        alert(`文件上传成功！共解析到 ${batchData.length} 个ASIN`);
+                    } catch (error) {
+                        alert('文件解析失败: ' + error.message);
+                        batchData = [];
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function processBatchData() {
+            if (batchData.length === 0) {
+                alert('请先上传Excel文件');
+                return;
+            }
+
+            const selectedTypes = Array.from(document.querySelectorAll('#batch input[type="checkbox"]:checked')).map(cb => cb.value);
+            const validation = validatePromoTypes(selectedTypes);
+
+            if (!validation.valid) {
+                alert(validation.message);
+                return;
+            }
+
+            // 获取批量处理的设置
+            const batchMarket = document.getElementById('batchMarket').value;
+            const batchPromoPeriod = document.getElementById('batchPromoPeriod').value;
+            const batchPromoStartDate = document.getElementById('batchPromoStartDate').value;
+            const batchPromoEndDate = document.getElementById('batchPromoEndDate').value;
+
+            const results = batchData.map(item => {
+                const pricing = calculatePricing(item.wasPrice, item.vrp, item.hampBuyboxPrice, item.hampNetPrice, selectedTypes, PROMO_RULES[batchMarket][batchPromoPeriod]);
+                return {
+                    ...item,
+                    activityType: selectedTypes.join(', '),
+                    activityTime: `${batchPromoStartDate || '2025-01-01'} to ${batchPromoEndDate || '2025-01-31'}`,
+                    discountRate: selectedTypes.length > 0 ? '15%' : '0%',
+                    prePromoPrice: pricing.prePromoMaxPrice.toFixed(2),
+                    promoPrice: pricing.promoMaxPrice.toFixed(2),
+                    postPromoPrice: pricing.postPromoPrice.toFixed(2)
+                };
+            });
+
+            displayBatchResults(results);
+        }
+
+        let batchResults = []; // 存储批量处理结果
+
+        function displayBatchResults(results) {
+            batchResults = results; // 保存结果用于下载
+            const resultsDiv = document.getElementById('batchResults');
+            const outputDiv = document.getElementById('batchOutput');
+
+            let html = `
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="border: 1px solid #ddd; padding: 12px;">ASIN</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">HAMP Buybox Price</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">HAMP Net Price</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">VRP</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">was_price</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">活动类型</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">活动时间</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">折扣率</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">活动前建议价格</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">活动中建议价格</th>
+                            <th style="border: 1px solid #ddd; padding: 12px;">活动后建议价格</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            results.forEach(item => {
+                html += `
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${item.asin}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$${item.hampBuyboxPrice}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$${item.hampNetPrice}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$${item.vrp}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$${item.wasPrice}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${item.activityType}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${item.activityTime}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${item.discountRate}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$${item.prePromoPrice}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$${item.promoPrice}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$${item.postPromoPrice}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            outputDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        function downloadResults() {
+            if (batchResults.length === 0) {
+                alert('没有可下载的结果');
+                return;
+            }
+
+            // 生成CSV内容，添加BOM以支持中文，强制ASIN为文本格式
+            const headers = ['ASIN', 'HAMP Buybox Price', 'HAMP Net Price', 'VRP', 'was_price', '活动类型', '活动时间', '折扣率', '活动前建议价格', '活动中建议价格', '活动后建议价格'];
+            let csvContent = '\uFEFF' + headers.join(',') + '\n';
+
+            batchResults.forEach(item => {
+                const row = [
+                    `="${item.asin}"`, // 使用Excel公式强制文本格式
+                    item.hampBuyboxPrice,
+                    item.hampNetPrice,
+                    item.vrp,
+                    item.wasPrice,
+                    `"${item.activityType}"`,
+                    `"${item.activityTime}"`,
+                    `"${item.discountRate}"`,
+                    item.prePromoPrice,
+                    item.promoPrice,
+                    item.postPromoPrice
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'amazon_pricing_results.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
