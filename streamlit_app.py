@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
+import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import io
 
@@ -258,24 +257,18 @@ with tab1:
                 else:
                     prices.append(results["prePromoMaxPrice"])
             
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=dates, y=prices,
-                mode='lines+markers',
-                name='建议价格',
-                line=dict(color='#667eea', width=3),
-                fill='tonexty'
-            ))
+            # 使用matplotlib创建图表
+            fig, ax = plt.subplots(figsize=(12, 6))
+            ax.plot(dates, prices, color='#667eea', linewidth=3, marker='o', markersize=2)
+            ax.fill_between(dates, prices, alpha=0.3, color='#667eea')
+            ax.set_title('90天价格趋势图', fontsize=16, fontweight='bold')
+            ax.set_xlabel('日期')
+            ax.set_ylabel('价格 ($)')
+            ax.grid(True, alpha=0.3)
+            plt.xticks(rotation=45)
+            plt.tight_layout()
             
-            fig.update_layout(
-                title="90天价格趋势图",
-                xaxis_title="日期",
-                yaxis_title="价格 ($)",
-                template="plotly_white",
-                height=400
-            )
-            
-            st.plotly_chart(fig, use_container_width=True)
+            st.pyplot(fig)
         else:
             st.error("请填写所有必填字段")
 
