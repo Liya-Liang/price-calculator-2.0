@@ -363,12 +363,12 @@ if st.session_state.show_help:
             <div style="background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); 
                         padding: 25px; border-radius: 15px; border-left: 4px solid #667eea;">
                 <h3 style="color: #667eea; margin-top: 0; display: flex; align-items: center;">
-                    <span style="font-size: 1.5em; margin-right: 10px;">📊</span>功能简介
+                    <span style="font-size: 1.5em; margin-right: 10px;">📖</span>功能简介
                 </h3>
                 <ul style="margin-left: 0; padding-left: 20px; line-height: 2;">
                     <li style="margin-bottom: 8px;">快速计算商品活动前价格要求，并给出价格策略建议</li>
                     <li style="margin-bottom: 8px;">支持单条计算和批量导入/导出</li>
-                    <li style="margin-bottom: 8px;">支持CSV格式</li>
+                    <li style="margin-bottom: 8px;">支持CSV和XLSX格式</li>
                     <li style="margin-bottom: 8px;">支持实时可视化结果</li>
                 </ul>
             </div>
@@ -380,7 +380,7 @@ if st.session_state.show_help:
                 </h3>
                 <ol style="margin-left: 0; padding-left: 20px; line-height: 2;">
                     <li style="margin-bottom: 8px;"><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
-                    <li style="margin-bottom: 8px;"><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议</li>
+                    <li style="margin-bottom: 8px;"><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
                 </ol>
             </div>
         </div>
@@ -388,7 +388,7 @@ if st.session_state.show_help:
         <div style="background: linear-gradient(135deg, rgba(255,193,7,0.1), rgba(255,152,0,0.1)); 
                     padding: 25px; border-radius: 15px; border-left: 4px solid #ffc107; margin-bottom: 25px;">
             <h3 style="color: #e67e22; margin-top: 0; display: flex; align-items: center;">
-                <span style="font-size: 1.5em; margin-right: 10px;">💡</span>重要提示
+                <span style="font-size: 1.5em; margin-right: 10px;">💡</span>提示
             </h3>
             <ul style="margin-left: 0; padding-left: 20px; line-height: 2;">
                 <li style="margin-bottom: 8px;">所有数据仅在当前会话有效</li>
@@ -412,7 +412,7 @@ if st.session_state.show_help:
         <p style="text-align: center; color: #888; font-size: 14px; margin: 0;">
             <span style="background: linear-gradient(135deg, #667eea, #764ba2); 
                          -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-                         font-weight: bold;">© 版权所有：SL Merchandising Team + Liya Liang</span>
+                         font-weight: bold;">© 版权所有：SL merchandising team + Liya Liang</span>
         </p>
     </div>
     """, unsafe_allow_html=True)
