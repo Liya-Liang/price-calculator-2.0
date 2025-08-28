@@ -10,33 +10,287 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 自定义CSS
+# 自定义CSS - 完全复制HTML版本的样式
 st.markdown("""
 <style>
-    .main { padding-top: 0rem; }
-    .stApp { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    /* 隐藏Streamlit默认元素 */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stDeployButton {visibility: hidden;}
     
-    .help-card {
-        background: rgba(255,255,255,0.95);
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
+    /* 主体样式 */
+    .main { 
+        padding-top: 0rem; 
+        padding-bottom: 0rem;
     }
     
-    .metric-card {
-        background: rgba(255,255,255,0.9);
-        padding: 20px;
-        border-radius: 12px;
+    .stApp { 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* 容器样式 */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 1400px;
+    }
+    
+    /* 帮助卡片样式 */
+    .help-card {
+        background: rgba(255,255,255,0.98);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+        margin-bottom: 30px;
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255,255,255,0.3);
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    /* 标题样式 */
+    .main-header {
+        background: linear-gradient(135deg, rgba(102,126,234,0.9) 0%, rgba(118,75,162,0.9) 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
         text-align: center;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin: 10px 0;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.2);
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .main-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .main-header h1 {
+        font-size: 2.8em;
+        margin-bottom: 15px;
+        font-weight: 300;
+        letter-spacing: 2px;
+        position: relative;
+        z-index: 1;
+        margin: 0;
+    }
+    
+    .main-header p {
+        font-size: 1.2em;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+        margin: 10px 0 0 0;
+    }
+    
+    /* 标签页样式 */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background: transparent;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background: rgba(255,255,255,0.9);
+        border-radius: 15px;
+        padding: 18px 35px;
+        border: 2px solid transparent;
+        backdrop-filter: blur(10px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(102,126,234,0.3);
+        border-color: #667eea;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+    }
+    
+    /* 内容区域样式 */
+    .stTabs [data-baseweb="tab-panel"] {
+        background: rgba(255,255,255,0.98);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255,255,255,0.3);
+        margin-top: 20px;
+    }
+    
+    /* 输入框样式 */
+    .stTextInput > div > div > input,
+    .stNumberInput > div > div > input,
+    .stSelectbox > div > div > select,
+    .stDateInput > div > div > input {
+        background: rgba(255,255,255,0.9);
+        border: 2px solid rgba(102,126,234,0.2);
+        border-radius: 12px;
+        padding: 15px 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 5px 15px rgba(102,126,234,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .stTextInput > div > div > input:focus,
+    .stNumberInput > div > div > input:focus,
+    .stSelectbox > div > div > select:focus,
+    .stDateInput > div > div > input:focus {
+        border-color: #667eea;
+        box-shadow: 0 10px 25px rgba(102,126,234,0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* 标签样式 */
+    .stTextInput > label,
+    .stNumberInput > label,
+    .stSelectbox > label,
+    .stDateInput > label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+    
+    /* 复选框样式 */
+    .stCheckbox {
+        background: rgba(255,255,255,0.8);
+        padding: 15px;
+        border-radius: 12px;
+        border: 2px solid rgba(102,126,234,0.1);
+        transition: all 0.3s ease;
+        margin: 5px 0;
+    }
+    
+    .stCheckbox:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102,126,234,0.2);
+        border-color: rgba(102,126,234,0.3);
+        background: rgba(255,255,255,0.9);
+    }
+    
+    /* 按钮样式 */
+    .stButton > button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 18px 40px;
+        border-radius: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(102,126,234,0.4);
+    }
+    
+    .stButton > button:active {
+        transform: translateY(-1px);
+    }
+    
+    /* 指标卡片样式 */
+    .metric-card {
+        background: rgba(255,255,255,0.95);
+        padding: 25px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border-left: 5px solid #667eea;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.3);
+        margin: 15px 0;
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 15px 40px rgba(102,126,234,0.2);
     }
     
     .price-highlight {
         font-size: 24px;
         font-weight: bold;
         color: #667eea;
+        margin: 10px 0;
+    }
+    
+    /* 结果区域样式 */
+    .results-section {
+        background: rgba(248,249,250,0.95);
+        padding: 30px;
+        border-radius: 20px;
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255,255,255,0.4);
+        box-shadow: 0 20px 45px rgba(0,0,0,0.1);
+        margin-top: 30px;
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    /* 数据框样式 */
+    .stDataFrame {
+        background: rgba(255,255,255,0.95);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    /* 图表容器样式 */
+    .chart-container {
+        background: rgba(255,255,255,0.98);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255,255,255,0.3);
+        margin-top: 20px;
+    }
+    
+    /* 动画效果 */
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .main-header h1 { font-size: 2.2em; }
+        .block-container { padding: 15px; }
+        .stTabs [data-baseweb="tab-panel"] { padding: 25px; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -88,31 +342,31 @@ if 'show_help' not in st.session_state:
 if st.session_state.show_help:
     st.markdown("""
     <div class="help-card">
-        <h2 style="color: #667eea;">📖 价格计算工具使用说明</h2>
+        <h2 style="color: #667eea; margin-bottom: 20px;">📖 价格计算工具使用说明</h2>
         
-        <h3 style="color: #764ba2;">📖 功能简介</h3>
-        <ul>
+        <h3 style="color: #764ba2; margin-top: 25px;">📖 功能简介</h3>
+        <ul style="margin-left: 20px; line-height: 1.8;">
             <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
             <li>支持单条计算和批量导入/导出</li>
             <li>支持CSV格式</li>
             <li>支持实时可视化结果</li>
         </ul>
         
-        <h3 style="color: #764ba2;">🚀 使用方法</h3>
-        <ol>
+        <h3 style="color: #764ba2; margin-top: 25px;">🚀 使用方法</h3>
+        <ol style="margin-left: 20px; line-height: 1.8;">
             <li><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
             <li><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议</li>
         </ol>
         
-        <h3 style="color: #764ba2;">💡 提示</h3>
-        <ul>
+        <h3 style="color: #764ba2; margin-top: 25px;">💡 提示</h3>
+        <ul style="margin-left: 20px; line-height: 1.8;">
             <li>所有数据仅在当前会话有效</li>
             <li>支持导出计算结果</li>
             <li>此工具仅作为价格推算参考，实际价格要求以卖家后台为准</li>
         </ul>
         
-        <hr>
-        <p style="text-align: center; color: #888;">© 版权所有：SL Merchandising Team + Liya Liang</p>
+        <hr style="margin: 25px 0; border: none; border-top: 2px solid #eee;">
+        <p style="text-align: center; color: #888; font-size: 14px;">© 版权所有：SL Merchandising Team + Liya Liang</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -122,11 +376,9 @@ if st.session_state.show_help:
 
 # 主标题
 st.markdown("""
-<div style="background: linear-gradient(135deg, rgba(102,126,234,0.9), rgba(118,75,162,0.9)); 
-            color: white; padding: 40px; border-radius: 20px; text-align: center; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2); margin-bottom: 30px;">
-    <h1 style="margin: 0; font-size: 2.5em; font-weight: 300;">亚马逊价格规划看板</h1>
-    <p style="margin: 10px 0 0 0; font-size: 1.2em; opacity: 0.9;">专业的促销价格规划工具</p>
+<div class="main-header">
+    <h1>亚马逊价格规划看板</h1>
+    <p>专业的促销价格规划工具</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -165,11 +417,14 @@ with tab1:
     with col1:
         asin = st.text_input("ASIN", placeholder="输入ASIN")
         historical_price = st.number_input("历史售价 ($)", min_value=0.0, step=0.01)
+        rating = st.number_input("评分", min_value=0.0, max_value=5.0, step=0.1)
         vrp = st.number_input("VRP ($)", min_value=0.0, step=0.01)
         t30_lowest_price = st.number_input("T30最低价 ($)", min_value=0.0, step=0.01)
+        t30_lowest_price_with_promo = st.number_input("含促销T30最低价 ($)", min_value=0.0, step=0.01)
     
     with col2:
         market = st.selectbox("市场", ["US", "CA"])
+        promo_type = st.selectbox("促销计划", ["with", "without"])
         promo_period = st.selectbox("促销时期", ["regular", "major"])
         promo_start_date = st.date_input("促销开始时间")
         promo_end_date = st.date_input("促销结束时间")
@@ -196,6 +451,7 @@ with tab1:
             rules = PROMO_RULES[market][promo_period]
             results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
             
+            st.markdown('<div class="results-section">', unsafe_allow_html=True)
             st.subheader("90天价格建议")
             
             col1, col2, col3 = st.columns(3)
@@ -227,7 +483,7 @@ with tab1:
             for logic in results["logic"]:
                 st.write(f"• {logic}")
             
-            # 使用Streamlit内置图表
+            # 图表数据
             dates = [datetime.now() + timedelta(days=i) for i in range(90)]
             chart_data = []
             
@@ -241,8 +497,12 @@ with tab1:
                 chart_data.append({"日期": date.strftime("%Y-%m-%d"), "建议价格": price})
             
             chart_df = pd.DataFrame(chart_data)
+            
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
             st.subheader("90天价格趋势图")
             st.line_chart(chart_df.set_index("日期"))
+            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
             
         else:
             st.error("请填写所有必填字段")
@@ -301,6 +561,7 @@ with tab2:
                 
                 results_df = pd.DataFrame(results_list)
                 
+                st.markdown('<div class="results-section">', unsafe_allow_html=True)
                 st.subheader("批量处理结果")
                 st.dataframe(results_df)
                 
@@ -311,6 +572,7 @@ with tab2:
                     file_name="amazon_pricing_results.csv",
                     mime="text/csv"
                 )
+                st.markdown('</div>', unsafe_allow_html=True)
                 
         except Exception as e:
             st.error(f"文件处理错误: {str(e)}")
