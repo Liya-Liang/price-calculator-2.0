@@ -1,8 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 # 页面配置
 st.set_page_config(
@@ -112,22 +109,30 @@ def show_overview():
         </div>
         """, unsafe_allow_html=True)
     
-    # 分布图表
+    # 数据展示
+    st.subheader("📊 Data Distribution")
+    
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("Market Distribution")
-        market_data = {"Market": ["US", "EU", "JP"], "Count": [4, 1, 1]}
-        fig = px.pie(market_data, values="Count", names="Market", 
-                    color_discrete_sequence=["#3498db", "#e74c3c", "#f39c12"])
-        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("### Market Distribution")
+        market_data = {
+            "Market": ["US", "EU", "JP"],
+            "Sellers": [4, 1, 1],
+            "Percentage": ["67%", "17%", "17%"]
+        }
+        df_market = pd.DataFrame(market_data)
+        st.dataframe(df_market, use_container_width=True)
     
     with col2:
-        st.subheader("Category Distribution")
-        category_data = {"Category": ["Apparel", "Luggage", "Shoes"], "Count": [3, 2, 1]}
-        fig = px.bar(category_data, x="Category", y="Count",
-                    color="Category", color_discrete_sequence=["#e74c3c", "#27ae60", "#f39c12"])
-        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("### Category Distribution")
+        category_data = {
+            "Category": ["Apparel", "Luggage", "Shoes"],
+            "Sellers": [3, 2, 1],
+            "Percentage": ["50%", "33%", "17%"]
+        }
+        df_category = pd.DataFrame(category_data)
+        st.dataframe(df_category, use_container_width=True)
 
 def show_market_analysis():
     st.header("🌍 Market-Specific Analysis")
@@ -342,38 +347,17 @@ def show_recommendations():
     st.subheader("🚀 Innovation Opportunities")
     
     innovations = [
-        {
-            "title": "Testing Platform",
-            "description": "Local customer testing and feedback mechanism for apparel sellers",
-            "impact": "High",
-            "effort": "Medium"
-        },
-        {
-            "title": "AI Ad Management",
-            "description": "Automated advertising optimization and bidding strategies",
-            "impact": "High",
-            "effort": "High"
-        },
-        {
-            "title": "Whitelist Protection",
-            "description": "Proactive product review for paid sellers to prevent attacks",
-            "impact": "Medium",
-            "effort": "Low"
-        },
-        {
-            "title": "Green Appeal Channel",
-            "description": "Fast-track appeal process for critical listing issues",
-            "impact": "Medium",
-            "effort": "Low"
-        }
+        "Testing Platform: Local customer testing and feedback mechanism for apparel sellers",
+        "AI Ad Management: Automated advertising optimization and bidding strategies", 
+        "Whitelist Protection: Proactive product review for paid sellers to prevent attacks",
+        "Green Appeal Channel: Fast-track appeal process for critical listing issues"
     ]
     
-    for innovation in innovations:
+    for i, innovation in enumerate(innovations, 1):
         st.markdown(f"""
         <div class="solution-card">
-            <h4>{innovation['title']}</h4>
-            <p>{innovation['description']}</p>
-            <p><strong>Impact:</strong> {innovation['impact']} | <strong>Effort:</strong> {innovation['effort']}</p>
+            <h4>{i}. {innovation.split(':')[0]}</h4>
+            <p>{innovation.split(':')[1]}</p>
         </div>
         """, unsafe_allow_html=True)
 
