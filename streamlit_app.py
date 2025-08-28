@@ -348,48 +348,34 @@ if not st.session_state.show_help:
             st.rerun()
 
 if st.session_state.show_help:
-    st.markdown("""
-    <div class="help-card">
-        <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">
-            📖 价格计算工具使用说明
-        </h2>
-        
-        <div style="background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); 
-                    padding: 25px; border-radius: 15px; border-left: 4px solid #667eea; margin-bottom: 20px;">
-            <h3 style="color: #667eea; margin-top: 0;">📖 功能简介</h3>
-            <ul style="line-height: 1.8;">
-                <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
-                <li>支持单条计算和批量导入/导出</li>
-                <li>支持CSV和XLSX格式</li>
-                <li>支持实时可视化结果</li>
-            </ul>
-        </div>
-        
-        <div style="background: linear-gradient(135deg, rgba(118,75,162,0.1), rgba(102,126,234,0.1)); 
-                    padding: 25px; border-radius: 15px; border-left: 4px solid #764ba2; margin-bottom: 20px;">
-            <h3 style="color: #764ba2; margin-top: 0;">🚀 使用方法</h3>
-            <ol style="line-height: 1.8;">
-                <li><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
-                <li><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
-            </ol>
-        </div>
-        
-        <div style="background: linear-gradient(135deg, rgba(255,193,7,0.1), rgba(255,152,0,0.1)); 
-                    padding: 25px; border-radius: 15px; border-left: 4px solid #ffc107; margin-bottom: 25px;">
-            <h3 style="color: #e67e22; margin-top: 0;">💡 提示</h3>
-            <ul style="line-height: 1.8;">
-                <li>所有数据仅在当前会话有效</li>
-                <li>支持导出计算结果</li>
-                <li style="color: #e74c3c; font-weight: 600;">此工具仅作为价格推算参考，实际价格要求以卖家后台为准</li>
-            </ul>
-        </div>
-        
-        <hr style="margin: 25px 0; border: none; border-top: 2px solid rgba(102,126,234,0.2);">
-        <p style="text-align: center; color: #888; font-size: 14px; margin: 0;">
-            © 版权所有：SL merchandising team + Liya Liang
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 📖 价格计算工具使用说明")
+    
+    with st.container():
+        st.markdown("#### 📖 功能简介")
+        st.markdown("""
+        - 快速计算商品活动前价格要求，并给出价格策略建议
+        - 支持单条计算和批量导入/导出
+        - 支持CSV和XLSX格式
+        - 支持实时可视化结果
+        """)
+    
+    with st.container():
+        st.markdown("#### 🚀 使用方法")
+        st.markdown("""
+        1. **单条计算**：在对应输入框中输入参数，点击计算，查看计算结果和操作建议
+        2. **批量导入/导出**：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果
+        """)
+    
+    with st.container():
+        st.markdown("#### 💡 提示")
+        st.markdown("""
+        - 所有数据仅在当前会话有效
+        - 支持导出计算结果
+        - **此工具仅作为价格推算参考，实际价格要求以卖家后台为准**
+        """)
+    
+    st.divider()
+    st.markdown("<p style='text-align: center; color: #888;'>© 版权所有：SL merchandising team + Liya Liang</p>", unsafe_allow_html=True)
     
     if st.button("关闭说明", key="close_help"):
         st.session_state.show_help = False
