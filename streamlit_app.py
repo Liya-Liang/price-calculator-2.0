@@ -534,52 +534,140 @@ with tab2:
             if st.checkbox(label, key=f"batch_{key}"):
                 batch_selected_promos.append(key)
     
-    uploaded_file = st.file_uploader("上传CSV文件", type=['csv'])
+    # 模板下载功能
+    st.subheader("📥 下载批量上传模板")
+    
+    # 创建模板数据
+    template_data = {
+        'ASIN': ['B08N5WRWNW'],
+        '历史售价': [27.99],
+        '评分': [4.5],
+        'VRP': [29.99],
+        'T30最低价': [25.99],
+        '含促销T30最低价': [23.99]
+    }
+    template_df = pd.DataFrame(template_data)
+    
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        csv_template = template_df.to_csv(index=False)
+        st.download_button(
+            label="📄 下载CSV模板",
+            data=csv_template,
+            file_name="amazon_pricing_template.csv",
+            mime="text/csv",
+            help="下载包含示例数据的CSV模板文件"
+        )
+    
+    with col2:
+        st.info("💡 模板包含示例数据，请按照格式填写您的ASIN信息")
+    
+    # 文件上传
+    st.subheader("📤 上传填写完成的文件")
+    uploaded_file = st.file_uploader("选择文件上传", type=['csv'], help="请上传按模板格式填写的CSV文件")
     
     if uploaded_file:
         try:
             df = pd.read_csv(uploaded_file)
-            st.write("文件预览:")
-            st.dataframe(df.head())
+            st.success(f"✅ 文件上传成功！共读取到 {len(df)} 条ASIN数据")
             
-            if st.button("批量运算", type="primary"):
-                rules = PROMO_RULES[batch_market][batch_promo_period]
-                results_list = []
-                
-                for _, row in df.iterrows():
-                    asin = row.get('ASIN', f'ASIN_{len(results_list)+1}')
-                    historical_price = float(row.get('was_price', 27.99))
-                    vrp = float(row.get('VRP', 29.99))
-                    t30_lowest = float(row.get('HAMP Buybox Price', 25.99))
+            st.subheader("📋 数据预览")
+            st.dataframe(df, use_container_width=True)
+            
+            if st.button("🚀 生成价格规划", type="primary", use_container_width=True):
+                if not batch_selected_promos:
+                    st.warning("⚠️ 请至少选择一种促销类型")
+                else:
+                    rules = PROMO_RULES[batch_market][batch_promo_period]
+                    results_list = []
                     
-                    pricing = calculate_pricing(historical_price, vrp, t30_lowest, batch_selected_promos, rules)
+                    # 显示进度条
+                    progress_bar = st.progress(0)
+                    status_text = st.empty()
                     
-                    results_list.append({
-                        'ASIN': asin,
-                        'HAMP Buybox Price': t30_lowest,
-                        'VRP': vrp,
-                        'was_price': historical_price,
-                        '活动类型': ', '.join(batch_selected_promos),
-                        '活动时间': f"{batch_promo_start_date} to {batch_promo_end_date}",
-                        '活动前建议价格': f"${pricing['prePromoMaxPrice']:.2f}",
-                        '活动中建议价格': f"${pricing['promoMaxPrice']:.2f}",
-                        '活动后建议价格': f"${pricing['postPromoPrice']:.2f}"
-                    })
-                
-                results_df = pd.DataFrame(results_list)
-                
-                st.markdown('<div class="results-section">', unsafe_allow_html=True)
-                st.subheader("批量处理结果")
-                st.dataframe(results_df)
-                
-                csv = results_df.to_csv(index=False)
-                st.download_button(
-                    label="下载结果",
-                    data=csv,
-                    file_name="amazon_pricing_results.csv",
-                    mime="text/csv"
-                )
-                st.markdown('</div>', unsafe_allow_html=True)
-                
+                    for i, row in df.iterrows():
+                        # 更新进度
+                        progress = (i + 1) / len(df)
+                        progress_bar.progress(progress)
+                        status_text.text(f'正在处理第 {i+1}/{len(df)} 个ASIN...')
+                        
+                        asin = row.get('ASIN', f'ASIN_{i+1}')
+                        historical_price = float(row.get('历史售价', 27.99))
+                        rating = float(row.get('评分', 4.5))
+                        vrp = float(row.get('VRP', 29.99))
+                        t30_lowest = float(row.get('T30最低价', 25.99))
+                        t30_lowest_with_promo = float(row.get('含促销T30最低价', 23.99))
+                        
+                        pricing = calculate_pricing(historical_price, vrp, t30_lowest, batch_selected_promos, rules)
+                        
+                        results_list.append({
+                            'ASIN': asin,
+                            '历史售价': f"${historical_price:.2f}",
+                            '评分': rating,
+                            'VRP': f"${vrp:.2f}",
+                            'T30最低价': f"${t30_lowest:.2f}",
+                            '含促销T30最低价': f"${t30_lowest_with_promo:.2f}",
+                            '活动类型': ', '.join(batch_selected_promos),
+                            '活动时间': f"{batch_promo_start_date} 至 {batch_promo_end_date}",
+                            '活动前建议价格': f"${pricing['prePromoMaxPrice']:.2f}",
+                            '活动中建议价格': f"${pricing['promoMaxPrice']:.2f}",
+                            '活动后建议价格': f"${pricing['postPromoPrice']:.2f}",
+                            '价格建议逻辑': '; '.join(pricing['logic'])
+                        })
+                    
+                    # 清除进度条
+                    progress_bar.empty()
+                    status_text.empty()
+                    
+                    results_df = pd.DataFrame(results_list)
+                    
+                    st.markdown('<div class="results-section">', unsafe_allow_html=True)
+                    st.subheader("📊 批量处理结果")
+                    
+                    # 显示统计信息
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        st.metric("处理ASIN数量", len(results_df))
+                    with col2:
+                        avg_promo_price = results_df['活动中建议价格'].str.replace('$', '').astype(float).mean()
+                        st.metric("平均活动价格", f"${avg_promo_price:.2f}")
+                    with col3:
+                        min_promo_price = results_df['活动中建议价格'].str.replace('$', '').astype(float).min()
+                        st.metric("最低活动价格", f"${min_promo_price:.2f}")
+                    with col4:
+                        max_promo_price = results_df['活动中建议价格'].str.replace('$', '').astype(float).max()
+                        st.metric("最高活动价格", f"${max_promo_price:.2f}")
+                    
+                    # 显示结果表格
+                    st.subheader("📋 详细结果预览")
+                    st.dataframe(results_df, use_container_width=True)
+                    
+                    # 下载按钮
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        csv_result = results_df.to_csv(index=False)
+                        st.download_button(
+                            label="📥 下载完整结果 (CSV)",
+                            data=csv_result,
+                            file_name=f"amazon_pricing_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                            mime="text/csv",
+                            use_container_width=True
+                        )
+                    
+                    with col2:
+                        # 创建简化版结果
+                        simple_results = results_df[['ASIN', '活动前建议价格', '活动中建议价格', '活动后建议价格']].copy()
+                        csv_simple = simple_results.to_csv(index=False)
+                        st.download_button(
+                            label="📥 下载简化结果 (CSV)",
+                            data=csv_simple,
+                            file_name=f"amazon_pricing_simple_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                            mime="text/csv",
+                            use_container_width=True
+                        )
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    
         except Exception as e:
-            st.error(f"文件处理错误: {str(e)}")
+            st.error(f"❌ 文件处理错误: {str(e)}")
+            st.info("💡 请确保文件格式正确，包含所需的列：ASIN, 历史售价, 评分, VRP, T30最低价, 含促销T30最低价")
