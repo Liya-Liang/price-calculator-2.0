@@ -10,292 +10,82 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 自定义CSS - 完全复制HTML版本的样式
+# 自定义CSS
 st.markdown("""
 <style>
-    /* 隐藏Streamlit默认元素 */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stDeployButton {visibility: hidden;}
+    .main { padding-top: 0rem; }
+    .stApp { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     
-    /* 主体样式 */
-    .main { 
-        padding-top: 0rem; 
-        padding-bottom: 0rem;
-    }
-    
-    .stApp { 
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    /* 容器样式 */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        max-width: 1400px;
-    }
-    
-    /* 帮助卡片样式 */
-    .help-card {
-        background: rgba(255,255,255,0.98);
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.15);
-        margin-bottom: 30px;
-        backdrop-filter: blur(30px);
-        border: 1px solid rgba(255,255,255,0.3);
-        animation: slideIn 0.5s ease-out;
-    }
-    
-    /* 标题样式 */
-    .main-header {
-        background: linear-gradient(135deg, rgba(102,126,234,0.9) 0%, rgba(118,75,162,0.9) 100%);
-        color: white;
-        padding: 40px;
-        border-radius: 20px;
-        text-align: center;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,255,255,0.2);
-        margin-bottom: 30px;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .main-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        animation: float 6s ease-in-out infinite;
-    }
-    
-    .main-header h1 {
-        font-size: 2.8em;
-        margin-bottom: 15px;
-        font-weight: 300;
-        letter-spacing: 2px;
-        position: relative;
-        z-index: 1;
-        margin: 0;
-    }
-    
-    .main-header p {
-        font-size: 1.2em;
-        opacity: 0.9;
-        position: relative;
-        z-index: 1;
-        margin: 10px 0 0 0;
-    }
-    
-    /* 标签页样式 */
-    .stTabs [data-baseweb="tab-list"] {
+    /* 右上角按钮样式 */
+    .top-buttons {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
         gap: 10px;
-        background: transparent;
     }
     
-    .stTabs [data-baseweb="tab"] {
-        background: rgba(255,255,255,0.9);
-        border-radius: 15px;
-        padding: 18px 35px;
-        border: 2px solid transparent;
-        backdrop-filter: blur(10px);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 30px rgba(102,126,234,0.3);
-        border-color: #667eea;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+    .top-btn {
+        background: linear-gradient(135deg, #ff9900, #ff7700);
         color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(255,153,0,0.3);
+        font-weight: bold;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
     }
     
-    /* 内容区域样式 */
-    .stTabs [data-baseweb="tab-panel"] {
-        background: rgba(255,255,255,0.98);
+    .top-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255,153,0,0.4);
+    }
+    
+    /* 弹窗样式 */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .modal-content {
+        background: white;
         padding: 40px;
         border-radius: 20px;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.15);
-        backdrop-filter: blur(30px);
-        border: 1px solid rgba(255,255,255,0.3);
-        margin-top: 20px;
-    }
-    
-    /* 输入框样式 */
-    .stTextInput > div > div > input,
-    .stNumberInput > div > div > input,
-    .stSelectbox > div > div > select,
-    .stDateInput > div > div > input {
-        background: rgba(255,255,255,0.9);
-        border: 2px solid rgba(102,126,234,0.2);
-        border-radius: 12px;
-        padding: 15px 20px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 5px 15px rgba(102,126,234,0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .stTextInput > div > div > input:focus,
-    .stNumberInput > div > div > input:focus,
-    .stSelectbox > div > div > select:focus,
-    .stDateInput > div > div > input:focus {
-        border-color: #667eea;
-        box-shadow: 0 10px 25px rgba(102,126,234,0.2);
-        transform: translateY(-2px);
-    }
-    
-    /* 标签样式 */
-    .stTextInput > label,
-    .stNumberInput > label,
-    .stSelectbox > label,
-    .stDateInput > label {
-        font-weight: 600;
-        color: #2c3e50;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 10px;
-    }
-    
-    /* 复选框样式 */
-    .stCheckbox {
-        background: rgba(255,255,255,0.8);
-        padding: 15px;
-        border-radius: 12px;
-        border: 2px solid rgba(102,126,234,0.1);
-        transition: all 0.3s ease;
-        margin: 5px 0;
-    }
-    
-    .stCheckbox:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102,126,234,0.2);
-        border-color: rgba(102,126,234,0.3);
-        background: rgba(255,255,255,0.9);
-    }
-    
-    /* 按钮样式 */
-    .stButton > button {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        padding: 18px 40px;
-        border-radius: 15px;
-        font-size: 16px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         position: relative;
-        overflow: hidden;
     }
     
-    .stButton > button:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(102,126,234,0.4);
-    }
-    
-    .stButton > button:active {
-        transform: translateY(-1px);
-    }
-    
-    /* 指标卡片样式 */
-    .metric-card {
-        background: rgba(255,255,255,0.95);
-        padding: 25px;
-        border-radius: 15px;
-        text-align: center;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        border-left: 5px solid #667eea;
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,255,255,0.3);
-        margin: 15px 0;
-        transition: all 0.3s ease;
-    }
-    
-    .metric-card:hover {
-        transform: translateX(5px);
-        box-shadow: 0 15px 40px rgba(102,126,234,0.2);
-    }
-    
-    .price-highlight {
+    .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
         font-size: 24px;
-        font-weight: bold;
-        color: #667eea;
-        margin: 10px 0;
+        cursor: pointer;
+        color: #999;
     }
     
-    /* 结果区域样式 */
-    .results-section {
-        background: rgba(248,249,250,0.95);
-        padding: 30px;
-        border-radius: 20px;
-        backdrop-filter: blur(25px);
-        border: 1px solid rgba(255,255,255,0.4);
-        box-shadow: 0 20px 45px rgba(0,0,0,0.1);
-        margin-top: 30px;
-        animation: fadeInUp 0.6s ease-out;
-    }
-    
-    /* 数据框样式 */
-    .stDataFrame {
-        background: rgba(255,255,255,0.95);
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    
-    /* 图表容器样式 */
-    .chart-container {
-        background: rgba(255,255,255,0.98);
-        padding: 30px;
-        border-radius: 20px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-        backdrop-filter: blur(25px);
-        border: 1px solid rgba(255,255,255,0.3);
-        margin-top: 20px;
-    }
-    
-    /* 动画效果 */
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-20px) rotate(180deg); }
-    }
-    
-    /* 响应式设计 */
-    @media (max-width: 768px) {
-        .main-header h1 { font-size: 2.2em; }
-        .block-container { padding: 15px; }
-        .stTabs [data-baseweb="tab-panel"] { padding: 25px; }
+    .close-btn:hover {
+        color: #333;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 促销规则配置 - 根据文档更新
+# 促销规则配置
 PROMO_RULES = {
     "US": {
         "regular": {
@@ -347,217 +137,146 @@ MAJOR_SALES_CALENDAR = {
     ]
 }
 
-# 使用说明
-# 通过查询参数控制初始弹出与再次打开：首次进入自动打开；之后仅当带有 help=open 时打开
-def _get_query_params_safe():
-    try:
-        # 新版 Streamlit
-        return dict(st.query_params)
-    except Exception:
-        try:
-            # 兼容旧版
-            return {k: v[0] if isinstance(v, list) and v else v for k, v in st.experimental_get_query_params().items()}
-        except Exception:
-            return {}
-
-if 'help_initialized' not in st.session_state:
-    st.session_state.help_initialized = True
+# 状态管理
+if 'show_help' not in st.session_state:
     st.session_state.show_help = True
-else:
-    params = _get_query_params_safe()
-    st.session_state.show_help = params.get('help') == 'open'
+if 'show_calendar' not in st.session_state:
+    st.session_state.show_calendar = False
 
-# 右上角使用说明按钮（始终显示）
-st.markdown("""
-<style>
-    .help-button {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 10000;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white !important;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 25px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 8px 25px rgba(102,126,234,0.3);
-        transition: all 0.3s ease;
-        text-decoration: none !important;
-        display: inline-block;
-    }
-    .help-button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(102,126,234,0.4); }
-    
-    .help-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(5px);
-    }
-    
-    .help-modal-content {
-        background: white;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-        max-width: 600px;
-        width: 90%;
-        max-height: 80vh;
-        overflow-y: auto;
-        position: relative;
-        animation: modalSlideIn 0.3s ease-out;
-    }
-    
-    @keyframes modalSlideIn {
-        from { opacity: 0; transform: translateY(-30px) scale(0.9); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    
-    .close-button {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        background: #f8f9fa;
-        border: none;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 18px;
-        color: #666;
-        transition: all 0.3s ease;
-    }
-    
-    .close-button:hover {
-        background: #e9ecef;
-        color: #333;
-    }
-</style>
-""", unsafe_allow_html=True)
+# 右上角按钮
+buttons_html = '<div class="top-buttons">'
+if not st.session_state.show_help:
+    buttons_html += '<div class="top-btn" onclick="showHelp()">📖 使用说明</div>'
+if not st.session_state.show_calendar:
+    buttons_html += '<div class="top-btn" onclick="showCalendar()">📅 促销日历</div>'
+buttons_html += '</div>'
 
-# 右上角使用说明按钮（同页打开：通过URL参数触发，避免新标签页）
-st.markdown('<a class="help-button" href="?help=open" target="_self">📖 使用说明</a>', unsafe_allow_html=True)
+st.markdown(buttons_html, unsafe_allow_html=True)
 
-# 使用说明弹窗（使用 Streamlit 原生对话框，关闭稳定可靠）
-@st.dialog("📖 价格计算工具使用说明")
-def _show_help_dialog():
-    st.markdown("""
-### 🚀 功能简介
-- 快速计算商品活动前价格要求，并给出价格策略建议
-- 支持单条计算和批量导入/导出
-- 支持实时可视化结果
-
-### 📋 使用方法
-1. **单条计算**：在对应输入框中输入参数，点击计算，查看计算结果和操作建议
-2. **批量导入/导出**：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果
-
-### 💡 提示
-- 所有数据仅在当前会话有效
-- 支持导出计算结果
-- **此工具仅作为价格推算参考，实际价格要求以卖家后台为准**
-
-<p style='text-align:center; color:#888; border-top:1px solid #eee; padding-top:12px;'>© 版权所有：SL merchandising team + Liya Liang</p>
-""", unsafe_allow_html=True)
-
-    col_close, col_calendar = st.columns([1,1])
-    with col_close:
-        if st.button("关闭", key="help_close_btn"):
-            st.session_state.show_help = False
-            st.rerun()
-    with col_calendar:
-        if st.button("促销日历", key="open_calendar_btn"):
-            st.session_state.show_help = False
-            st.session_state.view_calendar = True
-            st.rerun()
-
+# 使用说明弹窗
 if st.session_state.show_help:
-    _show_help_dialog()
-
-# 独立“促销日历”视图
-if st.session_state.get('view_calendar'):
     st.markdown("""
-    <div class="main-header">
-        <h1>📅 2025年大促日历</h1>
-        <p>重点活动时间速览</p>
+    <div class="modal-overlay" onclick="closeHelp()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="close-btn" onclick="closeHelp()">✕</div>
+            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">
+                📖 价格计算工具使用说明
+            </h2>
+            
+            <h3 style="color: #667eea;">📖 功能简介</h3>
+            <ul style="line-height: 1.8;">
+                <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
+                <li>支持单条计算和批量导入/导出</li>
+                <li>支持CSV和XLSX格式</li>
+                <li>支持实时可视化结果</li>
+            </ul>
+            
+            <h3 style="color: #764ba2;">🚀 使用方法</h3>
+            <ol style="line-height: 1.8;">
+                <li><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
+                <li><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
+            </ol>
+            
+            <h3 style="color: #e67e22;">💡 提示</h3>
+            <ul style="line-height: 1.8;">
+                <li>所有数据仅在当前会话有效</li>
+                <li>支持导出计算结果</li>
+                <li style="color: #e74c3c; font-weight: 600;">此工具仅作为价格推算参考，实际价格要求以卖家后台为准</li>
+            </ul>
+            
+            <hr style="margin: 25px 0; border: none; border-top: 2px solid #eee;">
+            <p style="text-align: center; color: #888; margin: 0;">
+                © 版权所有：SL merchandising team + Liya Liang
+            </p>
+        </div>
     </div>
+    
+    <script>
+    function closeHelp() {
+        document.querySelector('[data-testid="close_help_btn"]').click();
+    }
+    function showHelp() {
+        document.querySelector('[data-testid="show_help_btn"]').click();
+    }
+    </script>
     """, unsafe_allow_html=True)
-    render_sales_calendar()
-    if st.button("返回", key="back_from_calendar"):
-        st.session_state.view_calendar = False
+    
+    if st.button("", key="close_help_btn"):
+        st.session_state.show_help = False
+        st.rerun()
+
+# 促销日历弹窗
+if st.session_state.show_calendar:
+    calendar_content = """
+    <div class="modal-overlay" onclick="closeCalendar()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="close-btn" onclick="closeCalendar()">✕</div>
+            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">
+                📅 2025年大促日历
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <h3 style="color: #764ba2;">🇺🇸 美国站</h3>
+    """
+    
+    for event in MAJOR_SALES_CALENDAR["US"]:
+        calendar_content += f'<p><strong>{event["name"]}</strong><br>{event["start"]} 至 {event["end"]}</p>'
+    
+    calendar_content += """
+                </div>
+                <div>
+                    <h3 style="color: #764ba2;">🇨🇦 加拿大站</h3>
+    """
+    
+    for event in MAJOR_SALES_CALENDAR["CA"]:
+        calendar_content += f'<p><strong>{event["name"]}</strong><br>{event["start"]} 至 {event["end"]}</p>'
+    
+    calendar_content += """
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    function closeCalendar() {
+        document.querySelector('[data-testid="close_calendar_btn"]').click();
+    }
+    function showCalendar() {
+        document.querySelector('[data-testid="show_calendar_btn"]').click();
+    }
+    </script>
+    """
+    
+    st.markdown(calendar_content, unsafe_allow_html=True)
+    
+    if st.button("", key="close_calendar_btn"):
+        st.session_state.show_calendar = False
+        st.rerun()
+
+# 隐藏的按钮用于JavaScript调用
+if not st.session_state.show_help:
+    if st.button("", key="show_help_btn"):
+        st.session_state.show_help = True
+        st.rerun()
+
+if not st.session_state.show_calendar:
+    if st.button("", key="show_calendar_btn"):
+        st.session_state.show_calendar = True
         st.rerun()
 
 # 主标题
 st.markdown("""
-<div class="main-header">
-    <h1>亚马逊价格规划看板</h1>
-    <p>专业的促销价格规划工具</p>
+<div style="background: linear-gradient(135deg, rgba(102,126,234,0.9), rgba(118,75,162,0.9)); 
+            color: white; padding: 40px; border-radius: 20px; text-align: center; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2); margin-bottom: 30px;">
+    <h1 style="margin: 0; font-size: 2.5em; font-weight: 300;">亚马逊价格规划看板</h1>
+    <p style="margin: 10px 0 0 0; font-size: 1.2em; opacity: 0.9;">专业的促销价格规划工具</p>
 </div>
 """, unsafe_allow_html=True)
 
-# 大促日历渲染函数，供右侧侧栏调用
-def render_sales_calendar():
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%); 
-                padding: 25px; 
-                border-radius: 20px; 
-                box-shadow: 0 15px 40px rgba(0,0,0,0.1); 
-                margin-top: 20px;
-                border: 1px solid rgba(255,255,255,0.3);
-                backdrop-filter: blur(20px);">
-        <div style="text-align: center; margin-bottom: 25px;">
-            <h3 style="color: #667eea; margin: 0; font-size: 18px; font-weight: 600;">📅 2025年大促日历</h3>
-        </div>
-        <div style="margin-bottom: 25px; padding: 15px; background: rgba(102,126,234,0.1); border-radius: 12px;">
-            <h4 style="color: #667eea; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">🇺🇸 美国站</h4>
-            <div style="font-size: 13px; line-height: 1.6;">
-    """, unsafe_allow_html=True)
-    for event in MAJOR_SALES_CALENDAR["US"]:
-        st.markdown(f"""
-        <div style=\"margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border-left: 3px solid #667eea;\">
-            <div style=\"font-weight: 600; color: #2c3e50; margin-bottom: 4px;\">{event['name']}</div>
-            <div style=\"color: #666; font-size: 12px;\">{event['start']} 至 {event['end']}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    st.markdown("""
-            </div>
-        </div>
-        <div style="padding: 15px; background: rgba(118,75,162,0.1); border-radius: 12px;">
-            <h4 style="color: #764ba2; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">🇨🇦 加拿大站</h4>
-            <div style="font-size: 13px; line-height: 1.6;">
-    """, unsafe_allow_html=True)
-    for event in MAJOR_SALES_CALENDAR["CA"]:
-        st.markdown(f"""
-        <div style=\"margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border-left: 3px solid #764ba2;\">
-            <div style=\"font-weight: 600; color: #2c3e50; margin-bottom: 4px;\">{event['name']}</div>
-            <div style=\"color: #666; font-size: 12px;\">{event['start']} 至 {event['end']}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    st.markdown("""
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# 标签页
-tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
-
-# 将大促日历移到单个ASIN查询右侧
-with tab1:
-    left_col, right_col = st.columns([3,1])
-    with right_col:
-        render_sales_calendar()
-
+# 计算函数
 def validate_promo_types(selected_types):
-    """验证促销类型组合"""
     exclusive_types = ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal', 'priceDiscount', 'primeExclusive']
     selected_exclusive = [t for t in selected_types if t in exclusive_types]
     has_coupon = 'coupon' in selected_types
@@ -571,7 +290,6 @@ def validate_promo_types(selected_types):
     return {"valid": True, "message": ""}
 
 def calculate_stacked_discount(selected_types, vrp):
-    """计算叠加折扣"""
     exclusive_types = ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal', 'priceDiscount', 'primeExclusive']
     selected_exclusive = [t for t in selected_types if t in exclusive_types]
     has_coupon = 'coupon' in selected_types
@@ -579,13 +297,11 @@ def calculate_stacked_discount(selected_types, vrp):
     if not has_coupon:
         return 0
     
-    coupon_discount = 0.25  # 优惠券25%
+    coupon_discount = 0.25
     
     if any(t in ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal'] for t in selected_exclusive):
-        # 秒杀/顶级促销/Z划算(20% off) + 优惠券(25% off) = 45% off
         total_discount = 0.45
     elif any(t in ['primeExclusive', 'priceDiscount'] for t in selected_exclusive):
-        # 优惠券(25% off) + Prime专享折扣/价格折扣(30% off) = 47.5% off
         total_discount = 0.475
     else:
         total_discount = coupon_discount
@@ -593,7 +309,6 @@ def calculate_stacked_discount(selected_types, vrp):
     return vrp * (1 - total_discount)
 
 def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, selected_types, rules):
-    """根据文档要求计算价格"""
     results = {
         "prePromoMaxPrice": vrp * 0.95,
         "promoMaxPrice": vrp,
@@ -605,7 +320,6 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
         results["logic"].append("无促销活动，建议保持VRP价格")
         return results
     
-    # 验证促销类型组合
     validation = validate_promo_types(selected_types)
     if not validation["valid"]:
         results["logic"].append(f"错误：{validation['message']}")
@@ -614,14 +328,12 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
     if validation["message"]:
         results["logic"].append(validation["message"])
     
-    # 计算叠加折扣
     if 'coupon' in selected_types and len([t for t in selected_types if t in ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal', 'priceDiscount', 'primeExclusive']]) > 0:
         stacked_price = calculate_stacked_discount(selected_types, vrp)
         results["promoMaxPrice"] = stacked_price
         results["logic"].append(f"叠加计算后最终价格: ${stacked_price:.2f}")
         return results
     
-    # 单独促销类型计算
     min_promo_price = vrp
     
     for promo_type in selected_types:
@@ -631,14 +343,11 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
         rule = rules[promo_type]
         
         if promo_type == 'coupon':
-            # 优惠券特殊处理
-            discount_price = vrp * 0.75  # 默认25%折扣
+            discount_price = vrp * 0.75
             
-            # 检查was_price要求
             if rule.get("was_price_requirement") and discount_price >= historical_price:
                 discount_price = historical_price * 0.95
             
-            # 检查was_price最大增幅要求
             if rule.get("was_price_max_increase"):
                 max_current_price = historical_price * (1 + rule["was_price_max_increase"] / 100)
                 if vrp > max_current_price:
@@ -648,27 +357,22 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
             results["logic"].append(f"优惠券: 建议价格 ${discount_price:.2f}")
             
         else:
-            # 其他促销类型
             discount_price = vrp * (1 - rule["discount"] / 100)
             
-            # HAMP Net Price要求
             if rule.get("hamp_net_requirement") and discount_price > t30_lowest_price:
                 discount_price = t30_lowest_price
                 results["logic"].append(f"{promo_type}: 受HAMP Net Price限制")
             
-            # was_price要求
             if rule.get("was_price_requirement") and discount_price >= historical_price:
                 discount_price = historical_price * 0.95
                 results["logic"].append(f"{promo_type}: 受was_price限制")
             
-            # was_price折扣要求
             if rule.get("was_price_discount"):
                 required_price = historical_price * (1 - rule["was_price_discount"] / 100)
                 if discount_price > required_price:
                     discount_price = required_price
                     results["logic"].append(f"{promo_type}: 受was_price折扣要求限制")
             
-            # T30含促销价要求
             if rule.get("t30_promo_requirement") and discount_price > t30_lowest_price_with_promo:
                 discount_price = t30_lowest_price_with_promo
                 results["logic"].append(f"{promo_type}: 受T30含促销价限制")
@@ -678,6 +382,9 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
     
     results["promoMaxPrice"] = min_promo_price
     return results
+
+# 标签页
+tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
 
 # 单个ASIN查询
 with tab1:
@@ -720,33 +427,15 @@ with tab1:
             rules = PROMO_RULES[market][promo_period]
             results = calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, selected_promos, rules)
             
-            st.markdown('<div class="results-section">', unsafe_allow_html=True)
             st.subheader("90天价格建议")
             
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动前最高可设价格</h4>
-                    <div class="price-highlight">${results['prePromoMaxPrice']:.2f}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            
+                st.metric("活动前最高可设价格", f"${results['prePromoMaxPrice']:.2f}")
             with col2:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动期间最高可设价格</h4>
-                    <div class="price-highlight" style="color: #28a745;">${results['promoMaxPrice']:.2f}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            
+                st.metric("活动期间最高可设价格", f"${results['promoMaxPrice']:.2f}")
             with col3:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动后建议价格</h4>
-                    <div class="price-highlight" style="color: #007bff;">${results['postPromoPrice']:.2f}</div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.metric("活动后建议价格", f"${results['postPromoPrice']:.2f}")
             
             st.subheader("价格建议逻辑")
             for logic in results["logic"]:
@@ -766,12 +455,8 @@ with tab1:
                 chart_data.append({"日期": date.strftime("%Y-%m-%d"), "建议价格": price})
             
             chart_df = pd.DataFrame(chart_data)
-            
-            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
             st.subheader("90天价格趋势图")
             st.line_chart(chart_df.set_index("日期"))
-            st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
             
         else:
             st.error("请填写所有必填字段")
@@ -796,10 +481,8 @@ with tab2:
             if st.checkbox(label, key=f"batch_{key}"):
                 batch_selected_promos.append(key)
     
-    # 模板下载功能
+    # 模板下载
     st.subheader("📥 下载批量上传模板")
-    
-    # 创建模板数据
     template_data = {
         'ASIN': ['B08N5WRWNW'],
         '历史售价': [27.99],
@@ -810,30 +493,22 @@ with tab2:
     }
     template_df = pd.DataFrame(template_data)
     
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        csv_template = template_df.to_csv(index=False)
-        st.download_button(
-            label="📄 下载CSV模板",
-            data=csv_template,
-            file_name="amazon_pricing_template.csv",
-            mime="text/csv",
-            help="下载包含示例数据的CSV模板文件"
-        )
-    
-    with col2:
-        st.info("💡 模板包含示例数据，请按照格式填写您的ASIN信息")
+    csv_template = template_df.to_csv(index=False)
+    st.download_button(
+        label="📄 下载CSV模板",
+        data=csv_template,
+        file_name="amazon_pricing_template.csv",
+        mime="text/csv"
+    )
     
     # 文件上传
     st.subheader("📤 上传填写完成的文件")
-    uploaded_file = st.file_uploader("选择文件上传", type=['csv'], help="请上传按模板格式填写的CSV文件")
+    uploaded_file = st.file_uploader("选择文件上传", type=['csv'])
     
     if uploaded_file:
         try:
             df = pd.read_csv(uploaded_file)
             st.success(f"✅ 文件上传成功！共读取到 {len(df)} 条ASIN数据")
-            
-            st.subheader("📋 数据预览")
             st.dataframe(df, use_container_width=True)
             
             if st.button("🚀 生成价格规划", type="primary", use_container_width=True):
@@ -843,19 +518,14 @@ with tab2:
                     rules = PROMO_RULES[batch_market][batch_promo_period]
                     results_list = []
                     
-                    # 显示进度条
                     progress_bar = st.progress(0)
-                    status_text = st.empty()
                     
                     for i, row in df.iterrows():
-                        # 更新进度
                         progress = (i + 1) / len(df)
                         progress_bar.progress(progress)
-                        status_text.text(f'正在处理第 {i+1}/{len(df)} 个ASIN...')
                         
                         asin = row.get('ASIN', f'ASIN_{i+1}')
                         historical_price = float(row.get('历史售价', 27.99))
-                        rating = float(row.get('评分', 4.5))
                         vrp = float(row.get('VRP', 29.99))
                         t30_lowest = float(row.get('T30最低价', 25.99))
                         t30_lowest_with_promo = float(row.get('含促销T30最低价', 23.99))
@@ -864,72 +534,25 @@ with tab2:
                         
                         results_list.append({
                             'ASIN': asin,
-                            '历史售价': f"${historical_price:.2f}",
-                            '评分': rating,
-                            'VRP': f"${vrp:.2f}",
-                            'T30最低价': f"${t30_lowest:.2f}",
-                            '含促销T30最低价': f"${t30_lowest_with_promo:.2f}",
-                            '活动类型': ', '.join(batch_selected_promos),
-                            '活动时间': f"{batch_promo_start_date} 至 {batch_promo_end_date}",
                             '活动前建议价格': f"${pricing['prePromoMaxPrice']:.2f}",
                             '活动中建议价格': f"${pricing['promoMaxPrice']:.2f}",
                             '活动后建议价格': f"${pricing['postPromoPrice']:.2f}",
                             '价格建议逻辑': '; '.join(pricing['logic'])
                         })
                     
-                    # 清除进度条
                     progress_bar.empty()
-                    status_text.empty()
-                    
                     results_df = pd.DataFrame(results_list)
                     
-                    st.markdown('<div class="results-section">', unsafe_allow_html=True)
                     st.subheader("📊 批量处理结果")
-                    
-                    # 显示统计信息
-                    col1, col2, col3, col4 = st.columns(4)
-                    with col1:
-                        st.metric("处理ASIN数量", len(results_df))
-                    with col2:
-                        avg_promo_price = results_df['活动中建议价格'].str.replace('$', '').astype(float).mean()
-                        st.metric("平均活动价格", f"${avg_promo_price:.2f}")
-                    with col3:
-                        min_promo_price = results_df['活动中建议价格'].str.replace('$', '').astype(float).min()
-                        st.metric("最低活动价格", f"${min_promo_price:.2f}")
-                    with col4:
-                        max_promo_price = results_df['活动中建议价格'].str.replace('$', '').astype(float).max()
-                        st.metric("最高活动价格", f"${max_promo_price:.2f}")
-                    
-                    # 显示结果表格
-                    st.subheader("📋 详细结果预览")
                     st.dataframe(results_df, use_container_width=True)
                     
-                    # 下载按钮
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        csv_result = results_df.to_csv(index=False)
-                        st.download_button(
-                            label="📥 下载完整结果 (CSV)",
-                            data=csv_result,
-                            file_name=f"amazon_pricing_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                            mime="text/csv",
-                            use_container_width=True
-                        )
-                    
-                    with col2:
-                        # 创建简化版结果
-                        simple_results = results_df[['ASIN', '活动前建议价格', '活动中建议价格', '活动后建议价格']].copy()
-                        csv_simple = simple_results.to_csv(index=False)
-                        st.download_button(
-                            label="📥 下载简化结果 (CSV)",
-                            data=csv_simple,
-                            file_name=f"amazon_pricing_simple_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                            mime="text/csv",
-                            use_container_width=True
-                        )
-                    
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    csv_result = results_df.to_csv(index=False)
+                    st.download_button(
+                        label="📥 下载结果",
+                        data=csv_result,
+                        file_name=f"amazon_pricing_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                        mime="text/csv"
+                    )
                     
         except Exception as e:
             st.error(f"❌ 文件处理错误: {str(e)}")
-            st.info("💡 请确保文件格式正确，包含所需的列：ASIN, 历史售价, 评分, VRP, T30最低价, 含促销T30最低价")
