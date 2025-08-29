@@ -358,63 +358,35 @@ if 'show_help' not in st.session_state:
 
 # 只保留右上角按钮，点击弹窗
 
-# 注入自定义 CSS 和按钮
+# 顶部按钮区
+col1, col2, col3, col4 = st.columns([6, 1, 1, 0.2])
+with col2:
+    if st.button("📖 使用说明", key="show_help_btn", help="点击查看使用说明"):
+        st.session_state.show_help = True
+        st.rerun()
+with col3:
+    if st.button("🗓️ 促销日历", key="promo_calendar_btn_top", help="点击查看促销日历"):
+        st.session_state.show_calendar = True
+        st.rerun()
+
+# CSS样式统一
 st.markdown("""
 <style>
-.top-btn-container {
-    position: fixed;
-    top: 0.5rem;
-    right: 1rem;
-    display: flex;
-    gap: 1rem;
-    z-index: 1000;
+button[kind="primary"] {
+    background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%) !important;
+    color: #4b3fa7 !important;
+    border: none !important;
+    border-radius: 16px !important;
+    font-size: 18px !important;
+    font-weight: 500 !important;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.10) !important;
 }
-.custom-btn {
-    background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%);
-    color: #4b3fa7;
-    border: none;
-    border-radius: 16px;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(102,126,234,0.10);
-    transition: all 0.3s ease;
-}
-.custom-btn:hover {
-    box-shadow: 0 8px 24px rgba(102,126,234,0.18);
+button[kind="primary"]:hover {
+    box-shadow: 0 8px 24px rgba(102,126,234,0.18) !important;
     transform: translateY(-1px);
 }
-.custom-btn.calendar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-.stButton {
-    display: none;
-}
 </style>
-<div class="top-btn-container">
-    <button class="custom-btn" id="help-btn">📖 使用说明</button>
-    <button class="custom-btn calendar" id="calendar-btn">🗓️ 促销日历</button>
-</div>
-<script>
-document.getElementById('help-btn').addEventListener('click', function() {
-    const helpBtn = window.parent.document.querySelector('button[kind="secondary"]');
-    if (helpBtn) helpBtn.click();
-});
-document.getElementById('calendar-btn').addEventListener('click', function() {
-    const calendarBtn = window.parent.document.querySelector('button[kind="secondary"]:nth-child(2)');
-    if (calendarBtn) calendarBtn.click();
-});
-</script>
 """, unsafe_allow_html=True)
-
-# 隐藏的 Streamlit 按钮用于处理状态
-if st.button("", key="show_help_btn", help="hidden"):
-    st.session_state.show_help = True
-    st.rerun()
-if st.button("", key="promo_calendar_btn_top", help="hidden"):
-    st.session_state.show_calendar = True
 # 按钮事件处理
 if st.session_state.get('show_help_btn', False) or st.button("", key="show_help_btn_hidden", help="hidden", args=()):
     st.session_state.show_help = True
@@ -430,11 +402,12 @@ if st.session_state.show_help:
         <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
             <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
             <li>支持单条计算和批量导入/导出</li>
+            <li>支持CSV和XLSX格式</li>
             <li>支持实时可视化结果</li>
         </ul>
         <div style='font-size:18px; margin-bottom:18px;'><b>使用方法</b></div>
         <ol style='font-size:16px; color:#333; margin-bottom:18px;'>
-            <li>单条计算：在对应输入框中输入参数，点击"生成价格规划”，查看计算结果和操作建议</li>
+            <li>单条计算：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
             <li>批量导入/导出：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
         </ol>
         <div style='font-size:18px; margin-bottom:18px;'><b>提示</b></div>
