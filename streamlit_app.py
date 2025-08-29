@@ -489,29 +489,15 @@ if st.session_state.show_help:
 </div>
 
 <script>
-const modal = document.getElementById('helpModal');
-document.getElementById('helpModal').addEventListener('click', function(e) {
-  if (e.target === this) { closeHelpModal(); }
-});
-// 全局任意位置点击（除内容区域）都关闭
-document.addEventListener('click', function(e) {
-  try {
-    const content = modal.querySelector('.help-modal-content');
-    if (modal && modal.style.display !== 'none' && content && !content.contains(e.target)) {
-      closeHelpModal();
-    }
-  } catch (err) {}
-}, true);
 function closeHelpModal() {
-  document.getElementById('helpModal').style.display = 'none';
+  var modal = document.getElementById('helpModal');
+  if (modal) { modal.style.display = 'none'; }
   try {
     const url = new URL(window.location);
     url.searchParams.delete('help');
     window.history.replaceState({}, '', url);
   } catch (e) {}
-  try { window.location.reload(); } catch (e) {}
 }
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeHelpModal(); } });
 </script>
 """, unsafe_allow_html=True)
 
