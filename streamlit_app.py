@@ -25,10 +25,13 @@ st.set_page_config(
 st.markdown("""
 <style>
     /* 隐藏Streamlit默认元素 */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stDeployButton {visibility: hidden;}
+    #MainMenu {visibility: hidden; display: none !important;}
+    footer {visibility: hidden; display: none !important;}
+    header {visibility: hidden; display: none !important;}
+    .stDeployButton {visibility: hidden; display: none !important;}
+    .streamlit-expanderHeader {display: none !important;}
+    [data-testid="stToolbar"] {display: none !important;}
+    .streamlit-expanderContent {display: none !important;}
     
     /* 主体样式 */
     .main { 
@@ -570,7 +573,8 @@ with tab1:
     
     st.markdown("""
         <style>
-        div[data-testid="stButton"] button {
+        /* 只针对标签页内的按钮应用样式 */
+        [data-testid="stTabsContent"] div[data-testid="stButton"] button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -581,7 +585,7 @@ with tab1:
             margin: 0.5rem 0;
             transition: all 0.3s ease;
         }
-        div[data-testid="stButton"] button:hover {
+        [data-testid="stTabsContent"] div[data-testid="stButton"] button:hover {
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
             box-shadow: 0 4px 12px rgba(102,126,234,0.3);
             transform: translateY(-2px);
