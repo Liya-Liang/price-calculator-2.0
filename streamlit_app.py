@@ -398,12 +398,7 @@ with btn_col2:
         st.rerun()
 
 if st.session_state.show_help:
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius: 18px; box-shadow: 0 8px 32px rgba(102,126,234,0.10); padding: 40px 48px; margin-bottom: 32px;">
-        <h2 style='color:#4b3fa7; margin-bottom:18px;'>&#128214; 价格计算工具使用说明</h2>
-        <div style='font-size:18px; margin-bottom:18px;'><b>功能简介</b></div>
-        <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
-            <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
+    st.markdown('''
             <li>支持单条计算和批量导入/导出</li>
             <li>支持CSV和XLSX格式</li>
             <li>支持实时可视化结果</li>
@@ -422,19 +417,13 @@ if st.session_state.show_help:
         <hr style='margin:24px 0;'>
         <p style='text-align: center; color: #888;'>© 版权所有：SL merchandising team + Liya Liang</p>
         <!-- 右下角关闭说明按钮已移除，仅保留左下角按钮 -->
-    </div>
-    """, unsafe_allow_html=True)
+    </div>''', unsafe_allow_html=True)
     if st.button("关闭说明", key="close_help"):
         st.session_state.show_help = False
         st.rerun()
 
 # 主标题
-st.markdown("""
-<div class="main-header">
-    <h1>亚马逊价格规划看板</h1>
-    <p>专业的促销价格规划工具</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
 
 # 促销日历弹窗按钮（右上角）
 
@@ -442,10 +431,10 @@ st.markdown("""
 if st.session_state.get("show_calendar", False):
     # 弹窗内容和美化的X按钮
     # 美化“X”并用Streamlit按钮实现关闭弹窗
-    st.markdown("""
+    st.markdown('''
     <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
+            <h2 style="margin:0; color:#4b3fa7;">促销日历</h2>
             <div style="margin-left:12px;">
                 <style>
                 .close-x-btn {
@@ -470,19 +459,19 @@ if st.session_state.get("show_calendar", False):
                 </form>
             </div>
         </div>
-        <hr style='margin:18px 0;'>
-        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
-        <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
-            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
-            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
+        <hr style="margin:18px 0;">
+        <div style="font-size:18px; color:#333; margin-bottom:18px;"><b>美国站:</b></div>
+        <ul style="font-size:16px; color:#333; margin-bottom:18px;">
+            <li>Prime big deal day：<span style="color:#e67e22;">待官宣</span></li>
+            <li>BFCM：<span style="color:#667eea;">2025年11月20日-12月1日</span></li>
         </ul>
-        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>加拿大站:</b></div>
-        <ul style='font-size:16px; color:#333;'>
-            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
-            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
+        <div style="font-size:18px; color:#333; margin-bottom:18px;"><b>加拿大站:</b></div>
+        <ul style="font-size:16px; color:#333;">
+            <li>Prime big deal day：<span style="color:#e67e22;">待官宣</span></li>
+            <li>BFCM：<span style="color:#667eea;">2025年11月20日-12月1日</span></li>
         </ul>
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
     # 关闭弹窗功能
     if st.session_state.get('close_calendar_x_btn', False) or st.button("", key="close_calendar_x_btn_hidden", help="hidden", args=()):
         st.session_state.show_calendar = False
@@ -588,7 +577,7 @@ with tab1:
                 st.markdown(f"""
                 <div class="metric-card">
                     <h4>活动前最高可设价格</h4>
-                    <div class="price-highlight">${results['prePromoMaxPrice']:.2f}</div>
+                       st.markdown(f'<div class="metric-card"><h4>活动前最高可设价格</h4><div class="price-highlight">${results["prePromoMaxPrice"]:.2f}</div></div>', unsafe_allow_html=True)
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -596,7 +585,7 @@ with tab1:
                 st.markdown(f"""
                 <div class="metric-card">
                     <h4>活动期间最高可设价格</h4>
-                    <div class="price-highlight" style="color: #28a745;">${results['promoMaxPrice']:.2f}</div>
+                       st.markdown(f'<div class="metric-card"><h4>活动期间最高可设价格</h4><div class="price-highlight" style="color: #28a745;">${results["promoMaxPrice"]:.2f}</div></div>', unsafe_allow_html=True)
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -604,7 +593,7 @@ with tab1:
                 st.markdown(f"""
                 <div class="metric-card">
                     <h4>活动后建议价格</h4>
-                    <div class="price-highlight" style="color: #007bff;">${results['postPromoPrice']:.2f}</div>
+                       st.markdown(f'<div class="metric-card"><h4>活动后建议价格</h4><div class="price-highlight" style="color: #007bff;">${results["postPromoPrice"]:.2f}</div></div>', unsafe_allow_html=True)
                 </div>
                 """, unsafe_allow_html=True)
             
