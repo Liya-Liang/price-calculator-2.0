@@ -29,6 +29,21 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     .stDeployButton {visibility: hidden;}
+    div[data-testid="stToolbar"] {visibility: hidden !important;}
+    div[data-testid="stDecoration"] {display: none;}
+    div[data-testid="stStatusWidget"] {visibility: hidden;}
+    section[data-testid="stSidebar"] {background: transparent;}
+    
+    /* 移除所有可能的白色背景 */
+    div.stButton button {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .element-container, .stMarkdown, .stSelectbox {
+        background: transparent !important;
+    }
     
     /* 主体样式 */
     .main { 
@@ -39,6 +54,23 @@ st.markdown("""
     .stApp { 
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* 确保所有容器都是透明的 */
+    div.stApp > header,
+    div.stApp > div:first-of-type,
+    div[data-testid="stAppViewContainer"] > div:first-of-type,
+    div[data-testid="stAppViewContainer"] > section:first-of-type,
+    div.stApp div[data-testid="stToolbar"],
+    div.streamlit-expanderHeader,
+    div.streamlit-expanderContent {
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+    
+    /* 移除所有默认的白色背景和边框 */
+    .stTextInput, .stNumberInput, .stDateInput, .stSelectbox {
+        background: transparent !important;
     }
     
     /* 容器样式 */
@@ -196,6 +228,30 @@ st.markdown("""
         box-shadow: 0 8px 20px rgba(102,126,234,0.2);
         border-color: rgba(102,126,234,0.3);
         background: rgba(255,255,255,0.9);
+    }
+    
+    /* 处理其他可能的白色块 */
+    .stAlert {
+        background-color: transparent !important;
+        border: none !important;
+    }
+    
+    div[data-testid="stVerticalBlock"] {
+        background: transparent !important;
+        gap: 0;
+    }
+    
+    div[class^="st-"] {
+        background: transparent !important;
+    }
+    
+    div[data-baseweb="base-input"] {
+        background: transparent !important;
+    }
+    
+    /* 确保弹窗内容区域不受影响 */
+    .stModal {
+        background: rgba(255,255,255,0.98) !important;
     }
     
     /* 按钮样式 */
