@@ -30,6 +30,13 @@ st.markdown("""
     header {visibility: hidden;}
     .stDeployButton {visibility: hidden;}
     
+    /* 隐藏侧边栏控件 */
+    section[data-testid="stSidebarNav"] {display: none !important;}
+    .st-emotion-cache-1q1n0ol {display: none !important;}
+    .st-emotion-cache-79elbk {display: none !important;}
+    button[data-testid="baseButton-headerNoPadding"] {display: none !important;}
+    div[data-testid="collapsedControl"] {display: none !important;}
+    
     /* 主体样式 */
     .main { 
         padding-top: 0rem; 
