@@ -400,7 +400,7 @@ with btn_col2:
 if st.session_state.show_help:
     st.markdown("""
     <div style="background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius: 18px; box-shadow: 0 8px 32px rgba(102,126,234,0.10); padding: 40px 48px; margin-bottom: 32px;">
-        <h2 style='color:#4b3fa7; margin-bottom:18px;'>📖 价格计算工具使用说明</h2>
+        <h2 style='color:#4b3fa7; margin-bottom:18px;'>&#128214; 价格计算工具使用说明</h2>
         <div style='font-size:18px; margin-bottom:18px;'><b>功能简介</b></div>
         <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
             <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
@@ -421,7 +421,7 @@ if st.session_state.show_help:
         </ul>
         <hr style='margin:24px 0;'>
         <p style='text-align: center; color: #888;'>© 版权所有：SL merchandising team + Liya Liang</p>
-    <!-- 右下角关闭说明按钮已移除，仅保留左下角按钮 -->
+        <!-- 右下角关闭说明按钮已移除，仅保留左下角按钮 -->
     </div>
     """, unsafe_allow_html=True)
     if st.button("关闭说明", key="close_help"):
