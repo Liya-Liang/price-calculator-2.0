@@ -359,20 +359,67 @@ if 'show_help' not in st.session_state:
 # 只保留右上角按钮，点击弹窗
 
 # 顶部按钮区
-col1, col2, col3, col4 = st.columns([6, 1, 1, 0.2])
-with col2:
-    if st.button("📖 使用说明", key="show_help_btn", help="点击查看使用说明"):
-        st.session_state.show_help = True
-        st.rerun()
-with col3:
-    if st.button("🗓️ 促销日历", key="promo_calendar_btn_top", help="点击查看促销日历"):
-        st.session_state.show_calendar = True
-        st.rerun()
+st.markdown("""
+    <div style='position:fixed; top:20px; right:20px; z-index:1000; display:flex; gap:16px;'>
+        <button onclick='handleHelp()' class='custom-btn'>📖 使用说明</button>
+        <button onclick='handleCalendar()' class='custom-btn'>🗓️ 促销日历</button>
+    </div>
+    <script>
+        function handleHelp() {
+            window.parent.postMessage({type: 'show_help'}, '*');
+        }
+        function handleCalendar() {
+            window.parent.postMessage({type: 'show_calendar'}, '*');
+        }
+        window.addEventListener('message', function(e) {
+            if(e.data.type === 'show_help') {
+                document.querySelector('[data-testid="stForm"]').submit();
+            }
+            if(e.data.type === 'show_calendar') {
+                document.querySelector('[data-testid="stForm"]').submit();
+            }
+        });
+    </script>
+""", unsafe_allow_html=True)
+
+help_clicked = st.button("", key="show_help_btn", help="点击查看使用说明", label_visibility="hidden")
+calendar_clicked = st.button("", key="show_calendar_btn", help="点击查看促销日历", label_visibility="hidden")
+
+if help_clicked:
+    st.session_state.show_help = True
+    st.rerun()
+if calendar_clicked:
+    st.session_state.show_calendar = True
+    st.rerun()
 
 # CSS样式统一
 st.markdown("""
 <style>
-/* 隐藏columns产生的空白区域，与背景完全融合 */
+/* 自定义按钮样式 */
+.custom-btn {
+    background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%);
+    color: #4b3fa7;
+    border: none;
+    border-radius: 16px;
+    padding: 12px 32px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.10);
+}
+.custom-btn:last-child {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.custom-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102,126,234,0.18);
+}
+/* 隐藏底层按钮 */
+[data-testid="baseButton-secondary"] {
+    display: none !important;
+}
 [data-testid="column"] {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     padding: 0 !important;
