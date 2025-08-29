@@ -504,7 +504,12 @@ document.addEventListener('click', function(e) {
 }, true);
 function closeHelpModal() {
   document.getElementById('helpModal').style.display = 'none';
-  try { const url = new URL(window.location); url.searchParams.delete('help'); window.history.replaceState({}, '', url); } catch (e) {}
+  try {
+    const url = new URL(window.location);
+    url.searchParams.delete('help');
+    window.history.replaceState({}, '', url);
+  } catch (e) {}
+  try { window.location.reload(); } catch (e) {}
 }
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeHelpModal(); } });
 </script>
