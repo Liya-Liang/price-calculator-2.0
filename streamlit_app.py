@@ -447,62 +447,36 @@ st.markdown("""
 # 右上角使用说明按钮（固定位置，点击通过URL参数打开弹窗）
 st.markdown('<a class="help-button" href="?help=open">📖 使用说明</a>', unsafe_allow_html=True)
 
-# 使用说明弹窗
-if st.session_state.show_help:
+# 使用说明弹窗（使用 Streamlit 原生对话框，关闭稳定可靠）
+@st.dialog("📖 价格计算工具使用说明")
+def _show_help_dialog():
     st.markdown("""
-<div class="help-modal" id="helpModal">
-<div class="help-modal-content">
-<button class="close-button" type="button" onclick="closeHelpModal()">×</button>
-<h2 style="color: #667eea; margin-bottom: 25px; text-align: center;">📖 价格计算工具使用说明</h2>
+### 🚀 功能简介
+- 快速计算商品活动前价格要求，并给出价格策略建议
+- 支持单条计算和批量导入/导出
+- 支持CSV和XLSX格式
+- 支持实时可视化结果
 
-<div style="margin-bottom: 25px;">
-<h3 style="color: #764ba2; margin-bottom: 15px;">🚀 功能简介</h3>
-<ul style="line-height: 1.8; color: #555;">
-<li>快速计算商品活动前价格要求，并给出价格策略建议</li>
-<li>支持单条计算和批量导入/导出</li>
-<li>支持CSV和XLSX格式</li>
-<li>支持实时可视化结果</li>
-</ul>
-</div>
+### 📋 使用方法
+1. **单条计算**：在对应输入框中输入参数，点击计算，查看计算结果和操作建议
+2. **批量导入/导出**：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果
 
-<div style="margin-bottom: 25px;">
-<h3 style="color: #764ba2; margin-bottom: 15px;">📋 使用方法</h3>
-<ol style="line-height: 1.8; color: #555;">
-<li><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
-<li><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
-</ol>
-</div>
+### 💡 提示
+- 所有数据仅在当前会话有效
+- 支持导出计算结果
+- **此工具仅作为价格推算参考，实际价格要求以卖家后台为准**
 
-<div style="margin-bottom: 25px;">
-<h3 style="color: #764ba2; margin-bottom: 15px;">💡 提示</h3>
-<ul style="line-height: 1.8; color: #555;">
-<li>所有数据仅在当前会话有效</li>
-<li>支持导出计算结果</li>
-<li><strong>此工具仅作为价格推算参考，实际价格要求以卖家后台为准</strong></li>
-</ul>
-</div>
-
-<div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee;">
-<p style="color: #888; margin: 0;">© 版权所有：SL merchandising team + Liya Liang</p>
-</div>
-</div>
-</div>
-
-<script>
-function closeHelpModal() {
-  try {
-    var modal = document.getElementById('helpModal');
-    if (modal) { modal.style.display = 'none'; }
-    var url = new URL(window.location);
-    url.searchParams.delete('help');
-    window.history.replaceState({}, '', url);
-    window.location.reload();
-  } catch (e) {
-    window.location.href = window.location.pathname; // 兜底
-  }
-}
-</script>
+<p style='text-align:center; color:#888; border-top:1px solid #eee; padding-top:12px;'>© 版权所有：SL merchandising team + Liya Liang</p>
 """, unsafe_allow_html=True)
+
+    col_a, col_b = st.columns([3,1])
+    with col_b:
+        if st.button("关闭", key="close_help_btn"):
+            st.session_state.show_help = False
+            st.rerun()
+
+if st.session_state.show_help:
+    _show_help_dialog()
 
 # 主标题和促销日历布局
 col_main, col_calendar = st.columns([3, 1])
