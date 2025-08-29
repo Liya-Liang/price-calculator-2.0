@@ -383,21 +383,19 @@ st.markdown("""
     box-shadow: 0 8px 24px rgba(102,126,234,0.18);
 }
 </style>
-<div style='position: absolute; top: 32px; right: 64px; display: flex; gap: 0;'>
-    <form action="#" method="post" style="margin:0; display:inline;">
-        <button class="top-btn" type="submit" name="show_help_btn">📖 使用说明</button>
-    </form>
-    <form action="#" method="post" style="margin:0; display:inline;">
-        <button class="top-btn" type="submit" name="promo_calendar_btn_top">🗓️ 促销日历</button>
-    </form>
-</div>
-""", unsafe_allow_html=True)
-# 按钮事件处理
-if st.session_state.get('show_help_btn', False) or st.button("", key="show_help_btn_hidden", help="hidden", args=()):
-    st.session_state.show_help = True
-    st.rerun()
-if st.session_state.get('promo_calendar_btn_top', False) or st.button("", key="promo_calendar_btn_top_hidden", help="hidden", args=()):
-    st.session_state.show_calendar = True
+
+# 右上角按钮，点击弹窗，去除左侧白色块
+btn_col1, btn_col2, _ = st.columns([1,1,8])
+with btn_col1:
+    if st.button("📖 使用说明", key="show_help_btn_real"):
+        st.session_state.show_help = True
+        st.session_state.show_calendar = False
+        st.rerun()
+with btn_col2:
+    if st.button("🗓️ 促销日历", key="promo_calendar_btn_real"):
+        st.session_state.show_calendar = True
+        st.session_state.show_help = False
+        st.rerun()
 
 if st.session_state.show_help:
     st.markdown("""
@@ -443,11 +441,34 @@ st.markdown("""
 # 促销日历弹窗（美化，右上角，支持关闭）
 if st.session_state.get("show_calendar", False):
     # 弹窗内容和美化的X按钮
+    # 美化“X”并用Streamlit按钮实现关闭弹窗
     st.markdown("""
     <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
-            <button id="close-calendar-x" style="background:none; border:none; font-size:32px; color:#e74c3c; cursor:pointer; font-weight:bold; margin-left:12px; border-radius:8px; transition:background 0.2s; padding:2px 10px;" onmouseover="this.style.background='#fdecea'" onmouseout="this.style.background='none'">✕</button>
+            <div style="margin-left:12px;">
+                <style>
+                .close-x-btn {
+                    background:none;
+                    border:none;
+                    font-size:32px;
+                    color:#e74c3c;
+                    cursor:pointer;
+                    font-weight:bold;
+                    border-radius:8px;
+                    transition:background 0.2s, box-shadow 0.2s;
+                    padding:2px 10px;
+                    box-shadow:0 0 0 rgba(0,0,0,0);
+                }
+                .close-x-btn:hover {
+                    background:#fdecea;
+                    box-shadow:0 2px 8px rgba(231,76,60,0.12);
+                }
+                </style>
+                <form action="#" method="post" style="display:inline;">
+                    <button class="close-x-btn" type="submit" name="close_calendar_x_btn">✕</button>
+                </form>
+            </div>
         </div>
         <hr style='margin:18px 0;'>
         <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
@@ -461,20 +482,11 @@ if st.session_state.get("show_calendar", False):
             <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
         </ul>
     </div>
-    <script>
-    const closeBtn = window.parent.document.getElementById('close-calendar-x');
-    if(closeBtn){
-        closeBtn.onclick = function(){
-            window.parent.postMessage({type: 'close_calendar'}, '*');
-        }
-    }
-    window.addEventListener('message', function(e) {
-        if(e.data.type === 'close_calendar') {
-            window.parent.document.querySelector('iframe').style.display = 'none';
-        }
-    });
-    </script>
     """, unsafe_allow_html=True)
+    # 关闭弹窗功能
+    if st.session_state.get('close_calendar_x_btn', False) or st.button("", key="close_calendar_x_btn_hidden", help="hidden", args=()):
+        st.session_state.show_calendar = False
+        st.rerun()
 
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
