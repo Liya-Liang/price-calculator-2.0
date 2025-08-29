@@ -372,6 +372,17 @@ with col3:
 # CSS样式统一
 st.markdown("""
 <style>
+/* 隐藏columns产生的空白区域 */
+[data-testid="column"] {
+    background: transparent !important;
+    padding: 0 !important;
+}
+div[data-testid="stVerticalBlock"] > [data-testid="column"] {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+}
+
 button[kind="primary"] {
     background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%) !important;
     color: #4b3fa7 !important;
@@ -402,12 +413,11 @@ if st.session_state.show_help:
         <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
             <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
             <li>支持单条计算和批量导入/导出</li>
-            <li>支持CSV和XLSX格式</li>
             <li>支持实时可视化结果</li>
         </ul>
         <div style='font-size:18px; margin-bottom:18px;'><b>使用方法</b></div>
         <ol style='font-size:16px; color:#333; margin-bottom:18px;'>
-            <li>单条计算：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
+            <li>单条计算：在对应输入框中输入参数，点击“生成价格规划”，查看计算结果和操作建议</li>
             <li>批量导入/导出：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
         </ol>
         <div style='font-size:18px; margin-bottom:18px;'><b>提示</b></div>
@@ -558,7 +568,27 @@ with tab1:
             if st.checkbox(label, key=f"single_{key}"):
                 selected_promos.append(key)
     
-    if st.button("生成价格规划", type="primary"):
+    st.markdown("""
+        <style>
+        div[data-testid="stButton"] button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1.1em;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+        div[data-testid="stButton"] button:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+            transform: translateY(-2px);
+        }
+        </style>
+    """, unsafe_allow_html=True)
+if st.button("生成价格规划"):
         if asin and historical_price and vrp and t30_lowest_price:
             rules = PROMO_RULES[market][promo_period]
             results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
