@@ -444,26 +444,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 右上角使用说明按钮（固定位置，JS 修改当前 URL 参数，避免新开页面）
-st.markdown(
-    """
-<a class="help-button" href="#" target="_self" onclick="
-  try {
-    const url = new URL(window.location);
-    url.searchParams.set('help','open');
-    window.location.href = url.toString();
-  } catch (e) { window.location.reload(); }
-  return false;">📖 使用说明</a>
-""",
-    unsafe_allow_html=True,
-)
+# 右上角使用说明按钮（固定位置，点击通过URL参数打开弹窗）
+st.markdown('<a class="help-button" href="?help=open" target="_self">📖 使用说明</a>', unsafe_allow_html=True)
 
 # 使用说明弹窗（使用 Streamlit 原生对话框，关闭稳定可靠）
 @st.dialog("📖 价格计算工具使用说明")
 def _show_help_dialog():
-    # 顶部右侧关闭“×”
-    close_col_l, close_col_r = st.columns([10,1])
-    with close_col_r:
+    # 顶部右侧关闭“×”按钮（保留一个）
+    cols_top = st.columns([10,1])
+    with cols_top[1]:
         if st.button("×", key="help_dialog_close_icon"):
             st.session_state.show_help = False
             st.rerun()
