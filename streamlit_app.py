@@ -444,12 +444,30 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 右上角使用说明按钮（固定位置，点击通过URL参数打开弹窗）
-st.markdown('<a class="help-button" href="?help=open">📖 使用说明</a>', unsafe_allow_html=True)
+# 右上角使用说明按钮（固定位置，JS 修改当前 URL 参数，避免新开页面）
+st.markdown(
+    """
+<a class="help-button" href="#" target="_self" onclick="
+  try {
+    const url = new URL(window.location);
+    url.searchParams.set('help','open');
+    window.location.href = url.toString();
+  } catch (e) { window.location.reload(); }
+  return false;">📖 使用说明</a>
+""",
+    unsafe_allow_html=True,
+)
 
 # 使用说明弹窗（使用 Streamlit 原生对话框，关闭稳定可靠）
 @st.dialog("📖 价格计算工具使用说明")
 def _show_help_dialog():
+    # 顶部右侧关闭“×”
+    close_col_l, close_col_r = st.columns([10,1])
+    with close_col_r:
+        if st.button("×", key="help_dialog_close_icon"):
+            st.session_state.show_help = False
+            st.rerun()
+
     st.markdown("""
 ### 🚀 功能简介
 - 快速计算商品活动前价格要求，并给出价格策略建议
@@ -469,11 +487,7 @@ def _show_help_dialog():
 <p style='text-align:center; color:#888; border-top:1px solid #eee; padding-top:12px;'>© 版权所有：SL merchandising team + Liya Liang</p>
 """, unsafe_allow_html=True)
 
-    col_a, col_b = st.columns([3,1])
-    with col_b:
-        if st.button("关闭", key="close_help_btn"):
-            st.session_state.show_help = False
-            st.rerun()
+    # 不再提供右下角关闭按钮
 
 if st.session_state.show_help:
     _show_help_dialog()
