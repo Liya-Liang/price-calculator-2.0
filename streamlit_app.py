@@ -348,82 +348,173 @@ MAJOR_SALES_CALENDAR = {
 }
 
 # 使用说明
-if 'show_help' not in st.session_state:
+# 通过查询参数控制初始弹出与再次打开：首次进入自动打开；之后仅当带有 help=open 时打开
+def _get_query_params_safe():
+    try:
+        # 新版 Streamlit
+        return dict(st.query_params)
+    except Exception:
+        try:
+            # 兼容旧版
+            return {k: v[0] if isinstance(v, list) and v else v for k, v in st.experimental_get_query_params().items()}
+        except Exception:
+            return {}
+
+if 'help_initialized' not in st.session_state:
+    st.session_state.help_initialized = True
     st.session_state.show_help = True
+else:
+    params = _get_query_params_safe()
+    st.session_state.show_help = params.get('help') == 'open'
 
-# 顶部帮助按钮（当说明关闭时显示）
-if not st.session_state.show_help:
-    col1, col2, col3 = st.columns([6, 1, 1])
-    with col2:
-        if st.button("📖 使用说明", key="show_help_btn", help="点击查看使用说明"):
-            st.session_state.show_help = True
-            st.rerun()
+# 右上角使用说明按钮（始终显示）
+st.markdown("""
+<style>
+    .help-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white !important;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+        transition: all 0.3s ease;
+        text-decoration: none !important;
+        display: inline-block;
+    }
+    .help-button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(102,126,234,0.4); }
+    
+    .help-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(5px);
+    }
+    
+    .help-modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: translateY(-30px) scale(0.9); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .close-button {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: #f8f9fa;
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        color: #666;
+        transition: all 0.3s ease;
+    }
+    
+    .close-button:hover {
+        background: #e9ecef;
+        color: #333;
+    }
+</style>
+""", unsafe_allow_html=True)
 
+# 右上角使用说明按钮（固定位置，点击通过URL参数打开弹窗）
+st.markdown('<a class="help-button" href="?help=open">📖 使用说明</a>', unsafe_allow_html=True)
+
+# 使用说明弹窗
 if st.session_state.show_help:
-    # 使用说明弹窗 - 使用Streamlit组件
-    with st.container():
-        st.markdown("""
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                    background: rgba(0,0,0,0.5); z-index: 9999; display: flex; 
-                    justify-content: center; align-items: center;">
+    st.markdown("""
+    <div class="help-modal" id="helpModal">
+        <div class="help-modal-content">
+            <button class="close-button" onclick="closeHelpModal()">×</button>
+            <h2 style="color: #667eea; margin-bottom: 25px; text-align: center;">📖 价格计算工具使用说明</h2>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="color: #764ba2; margin-bottom: 15px;">🚀 功能简介</h3>
+                <ul style="line-height: 1.8; color: #555;">
+                    <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
+                    <li>支持单条计算和批量导入/导出</li>
+                    <li>支持CSV和XLSX格式</li>
+                    <li>支持实时可视化结果</li>
+                </ul>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="color: #764ba2; margin-bottom: 15px;">📋 使用方法</h3>
+                <ol style="line-height: 1.8; color: #555;">
+                    <li><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
+                    <li><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
+                </ol>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="color: #764ba2; margin-bottom: 15px;">💡 提示</h3>
+                <ul style="line-height: 1.8; color: #555;">
+                    <li>所有数据仅在当前会话有效</li>
+                    <li>支持导出计算结果</li>
+                    <li><strong>此工具仅作为价格推算参考，实际价格要求以卖家后台为准</strong></li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee;">
+                <p style="color: #888; margin: 0;">© 版权所有：SL merchandising team + Liya Liang</p>
+            </div>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    
+    <script>
+        // 点击弹窗外部关闭弹窗
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHelpModal();
+            }
+        });
         
-        # 弹窗内容
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            with st.container():
-                st.markdown("""
-                <div style="background: white; padding: 40px; border-radius: 20px; 
-                            box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: 50px 0;">
-                </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown("### 📖 价格计算工具使用说明")
-                
-                st.markdown("#### 📖 功能简介")
-                st.markdown("""
-                - 快速计算商品活动前价格要求，并给出价格策略建议
-                - 支持单条计算和批量导入/导出
-                - 支持CSV和XLSX格式
-                - 支持实时可视化结果
-                """)
-                
-                st.markdown("#### 🚀 使用方法")
-                st.markdown("""
-                1. **单条计算**：在对应输入框中输入参数，点击计算，查看计算结果和操作建议
-                2. **批量导入/导出**：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果
-                """)
-                
-                st.markdown("#### 💡 提示")
-                st.markdown("""
-                - 所有数据仅在当前会话有效
-                - 支持导出计算结果
-                - **此工具仅作为价格推算参考，实际价格要求以卖家后台为准**
-                """)
-                
-                st.divider()
-                st.markdown("<p style='text-align: center; color: #888;'>© 版权所有：SL merchandising team + Liya Liang</p>", unsafe_allow_html=True)
-                
-                col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
-                with col_btn2:
-                    if st.button("关闭说明", key="close_help", use_container_width=True):
-                        st.session_state.show_help = False
-                        st.rerun()
-                
-                # 点击任意位置关闭的JavaScript
-                st.markdown("""
-                <script>
-                setTimeout(function() {
-                    document.addEventListener('click', function(e) {
-                        if (!e.target.closest('.stContainer') && 
-                            !e.target.closest('[data-testid="close_help"]')) {
-                            document.querySelector('[data-testid="close_help"]').click();
-                        }
-                    });
-                }, 1000);
-                </script>
-                """, unsafe_allow_html=True)
+        // 关闭弹窗函数
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+            // 移除URL中的help参数，避免后续交互再次自动弹出
+            try {
+                const url = new URL(window.location);
+                url.searchParams.delete('help');
+                window.history.replaceState({}, '', url);
+            } catch (e) {}
+        }
+        
+        // 监听键盘ESC键关闭弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeHelpModal();
+            }
+        });
+    </script>
+    """, unsafe_allow_html=True)
 
 # 主标题和促销日历布局
 col_main, col_calendar = st.columns([3, 1])
@@ -437,32 +528,64 @@ with col_main:
     """, unsafe_allow_html=True)
 
 with col_calendar:
-    # 大促日历模块 - 白色背景
+    # 大促日历模块 - 优化后的样式
     st.markdown("""
-    <div style="background: white; padding: 20px; border-radius: 15px; 
-                box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px;">
-        <h3 style="color: #667eea; margin-bottom: 20px; text-align: center;">
-            📅 2025年大促日历
-        </h3>
+    <div style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%); 
+                padding: 25px; 
+                border-radius: 20px; 
+                box-shadow: 0 15px 40px rgba(0,0,0,0.1); 
+                margin-top: 20px;
+                border: 1px solid rgba(255,255,255,0.3);
+                backdrop-filter: blur(20px);">
         
-        <div style="margin-bottom: 20px;">
-            <h4 style="color: #764ba2; margin-bottom: 10px;">🇺🇸 美国站</h4>
+        <div style="text-align: center; margin-bottom: 25px;">
+            <h3 style="color: #667eea; margin: 0; font-size: 18px; font-weight: 600;">
+                📅 2025年大促日历
+            </h3>
+        </div>
+        
+        <div style="margin-bottom: 25px; padding: 15px; background: rgba(102,126,234,0.1); border-radius: 12px;">
+            <h4 style="color: #667eea; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">
+                🇺🇸 美国站
+            </h4>
+            <div style="font-size: 13px; line-height: 1.6;">
     """, unsafe_allow_html=True)
     
     for event in MAJOR_SALES_CALENDAR["US"]:
-        st.markdown(f"**{event['name']}**  \n{event['start']} 至 {event['end']}")
+        st.markdown(f"""
+        <div style="margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border-left: 3px solid #667eea;">
+            <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">{event['name']}</div>
+            <div style="color: #666; font-size: 12px;">{event['start']} 至 {event['end']}</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("""
+            </div>
         </div>
         
-        <div>
-            <h4 style="color: #764ba2; margin-bottom: 10px;">🇨🇦 加拿大站</h4>
+        <div style="padding: 15px; background: rgba(118,75,162,0.1); border-radius: 12px;">
+            <h4 style="color: #764ba2; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">
+                🇨🇦 加拿大站
+            </h4>
+            <div style="font-size: 13px; line-height: 1.6;">
     """, unsafe_allow_html=True)
     
     for event in MAJOR_SALES_CALENDAR["CA"]:
-        st.markdown(f"**{event['name']}**  \n{event['start']} 至 {event['end']}")
+        st.markdown(f"""
+        <div style="margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border-left: 3px solid #764ba2;">
+            <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">{event['name']}</div>
+            <div style="color: #666; font-size: 12px;">{event['start']} 至 {event['end']}</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("""
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);">
+            <div style="font-size: 12px; color: #888;">
+                💡 点击右上角"使用说明"查看详细功能
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
