@@ -359,7 +359,7 @@ if 'show_help' not in st.session_state:
 # 只保留右上角按钮，点击弹窗
 
 # 统一按钮风格与自适应尺寸
-st.markdown("""
+st.markdown('''
 <style>
 .top-btn {
     background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%);
@@ -383,7 +383,7 @@ st.markdown("""
     box-shadow: 0 8px 24px rgba(102,126,234,0.18);
 }
 </style>
-
+''', unsafe_allow_html=True)
 # 右上角按钮，点击弹窗，去除左侧白色块
 btn_col1, btn_col2, _ = st.columns([1,1,8])
 with btn_col1:
@@ -423,7 +423,7 @@ if st.session_state.show_help:
         st.rerun()
 
 # 主标题
-st.markdown(
+st.markdown('<h1 style="text-align:center; color:#4b3fa7; margin-top:12px; margin-bottom:24px;">Amazon 促销价格计算工具 v2.0</h1>', unsafe_allow_html=True)
 
 # 促销日历弹窗按钮（右上角）
 
@@ -574,9 +574,6 @@ with tab1:
             
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动前最高可设价格</h4>
                 st.markdown(f'<div class="metric-card"><h4>活动前最高可设价格</h4><div class="price-highlight">{results["prePromoMaxPrice"]:.2f}</div></div>', unsafe_allow_html=True)
             
             with col2:
