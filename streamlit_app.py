@@ -444,8 +444,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 右上角使用说明按钮（固定位置，点击通过URL参数打开弹窗）
-st.markdown('<a class="help-button" href="?help=open" target="_self">📖 使用说明</a>', unsafe_allow_html=True)
+# 隐藏的内部触发按钮（用于无刷新打开对话框）
+st.markdown('<div id="help_open_container" style="position:absolute; left:-10000px; top:-10000px; width:1px; height:1px; overflow:hidden;">', unsafe_allow_html=True)
+_open_help_internal = st.button("open_help_internal", key="open_help_internal")
+st.markdown('</div>', unsafe_allow_html=True)
+if _open_help_internal:
+    st.session_state.show_help = True
+    st.rerun()
+
+# 右上角使用说明按钮（点击触发隐藏按钮，无需整页刷新）
+st.markdown(
+    '<a class="help-button" href="#" onclick="var btn=document.querySelector(\'#help_open_container button\'); if(btn){btn.click();} return false;">📖 使用说明</a>',
+    unsafe_allow_html=True
+)
 
 # 使用说明弹窗（使用 Streamlit 原生对话框，关闭稳定可靠）
 @st.dialog("📖 价格计算工具使用说明")
@@ -474,19 +485,16 @@ def _show_help_dialog():
 if st.session_state.show_help:
     _show_help_dialog()
 
-# 主标题和促销日历布局
-col_main, col_calendar = st.columns([3, 1])
+# 主标题
+st.markdown("""
+<div class="main-header">
+    <h1>亚马逊价格规划看板</h1>
+    <p>专业的促销价格规划工具</p>
+</div>
+""", unsafe_allow_html=True)
 
-with col_main:
-    st.markdown("""
-    <div class="main-header">
-        <h1>亚马逊价格规划看板</h1>
-        <p>专业的促销价格规划工具</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col_calendar:
-    # 大促日历模块 - 优化后的样式
+# 大促日历渲染函数，供右侧侧栏调用
+def render_sales_calendar():
     st.markdown("""
     <div style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%); 
                 padding: 25px; 
@@ -495,54 +503,35 @@ with col_calendar:
                 margin-top: 20px;
                 border: 1px solid rgba(255,255,255,0.3);
                 backdrop-filter: blur(20px);">
-        
         <div style="text-align: center; margin-bottom: 25px;">
-            <h3 style="color: #667eea; margin: 0; font-size: 18px; font-weight: 600;">
-                📅 2025年大促日历
-            </h3>
+            <h3 style="color: #667eea; margin: 0; font-size: 18px; font-weight: 600;">📅 2025年大促日历</h3>
         </div>
-        
         <div style="margin-bottom: 25px; padding: 15px; background: rgba(102,126,234,0.1); border-radius: 12px;">
-            <h4 style="color: #667eea; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">
-                🇺🇸 美国站
-            </h4>
+            <h4 style="color: #667eea; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">🇺🇸 美国站</h4>
             <div style="font-size: 13px; line-height: 1.6;">
     """, unsafe_allow_html=True)
-    
     for event in MAJOR_SALES_CALENDAR["US"]:
         st.markdown(f"""
-        <div style="margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border-left: 3px solid #667eea;">
-            <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">{event['name']}</div>
-            <div style="color: #666; font-size: 12px;">{event['start']} 至 {event['end']}</div>
+        <div style=\"margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border-left: 3px solid #667eea;\">
+            <div style=\"font-weight: 600; color: #2c3e50; margin-bottom: 4px;\">{event['name']}</div>
+            <div style=\"color: #666; font-size: 12px;\">{event['start']} 至 {event['end']}</div>
         </div>
         """, unsafe_allow_html=True)
-    
     st.markdown("""
             </div>
         </div>
-        
         <div style="padding: 15px; background: rgba(118,75,162,0.1); border-radius: 12px;">
-            <h4 style="color: #764ba2; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">
-                🇨🇦 加拿大站
-            </h4>
+            <h4 style="color: #764ba2; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">🇨🇦 加拿大站</h4>
             <div style="font-size: 13px; line-height: 1.6;">
     """, unsafe_allow_html=True)
-    
     for event in MAJOR_SALES_CALENDAR["CA"]:
         st.markdown(f"""
-        <div style="margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border-left: 3px solid #764ba2;">
-            <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">{event['name']}</div>
-            <div style="color: #666; font-size: 12px;">{event['start']} 至 {event['end']}</div>
+        <div style=\"margin-bottom: 8px; padding: 8px; background: white; border-radius: 8px; border-left: 3px solid #764ba2;\">
+            <div style=\"font-weight: 600; color: #2c3e50; margin-bottom: 4px;\">{event['name']}</div>
+            <div style=\"color: #666; font-size: 12px;\">{event['start']} 至 {event['end']}</div>
         </div>
         """, unsafe_allow_html=True)
-    
     st.markdown("""
-            </div>
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);">
-            <div style="font-size: 12px; color: #888;">
-                💡 点击右上角"使用说明"查看详细功能
             </div>
         </div>
     </div>
@@ -550,6 +539,12 @@ with col_calendar:
 
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
+
+# 将大促日历移到单个ASIN查询右侧
+with tab1:
+    left_col, right_col = st.columns([3,1])
+    with right_col:
+        render_sales_calendar()
 
 def validate_promo_types(selected_types):
     """验证促销类型组合"""
