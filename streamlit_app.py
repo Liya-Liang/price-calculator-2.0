@@ -358,39 +358,34 @@ if 'show_help' not in st.session_state:
 
 # 只保留右上角按钮，点击弹窗
 
-# 统一按钮风格与自适应尺寸
+# 顶部按钮区
+col1, col2, col3, col4 = st.columns([6, 1, 1, 0.2])
+with col2:
+    if st.button("📖 使用说明", key="show_help_btn", help="点击查看使用说明"):
+        st.session_state.show_help = True
+        st.rerun()
+with col3:
+    if st.button("🗓️ 促销日历", key="promo_calendar_btn_top", help="点击查看促销日历"):
+        st.session_state.show_calendar = True
+        st.rerun()
+
+# CSS样式统一
 st.markdown("""
 <style>
-.top-btn {
-    background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%);
-    color: #4b3fa7;
-    border: none;
-    border-radius: 16px;
-    padding: 12px 32px;
-    font-size: 18px;
-    font-weight: 500;
-    box-shadow: 0 4px 16px rgba(102,126,234,0.10);
-    cursor:pointer;
-    margin-right: 18px;
-    transition: box-shadow 0.2s;
+button[kind="primary"] {
+    background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%) !important;
+    color: #4b3fa7 !important;
+    border: none !important;
+    border-radius: 16px !important;
+    font-size: 18px !important;
+    font-weight: 500 !important;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.10) !important;
 }
-.top-btn:last-child {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    margin-right: 0;
-}
-.top-btn:hover {
-    box-shadow: 0 8px 24px rgba(102,126,234,0.18);
+button[kind="primary"]:hover {
+    box-shadow: 0 8px 24px rgba(102,126,234,0.18) !important;
+    transform: translateY(-1px);
 }
 </style>
-<div style='position: absolute; top: 32px; right: 64px; display: flex; gap: 0;'>
-    <form action="#" method="post" style="margin:0; display:inline;">
-        <button class="top-btn" type="submit" name="show_help_btn">📖 使用说明</button>
-    </form>
-    <form action="#" method="post" style="margin:0; display:inline;">
-        <button class="top-btn" type="submit" name="promo_calendar_btn_top">🗓️ 促销日历</button>
-    </form>
-</div>
 """, unsafe_allow_html=True)
 # 按钮事件处理
 if st.session_state.get('show_help_btn', False) or st.button("", key="show_help_btn_hidden", help="hidden", args=()):
