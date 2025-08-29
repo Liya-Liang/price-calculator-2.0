@@ -450,71 +450,55 @@ st.markdown('<a class="help-button" href="?help=open">📖 使用说明</a>', un
 # 使用说明弹窗
 if st.session_state.show_help:
     st.markdown("""
-    <div class="help-modal" id="helpModal">
-        <div class="help-modal-content">
-            <button class="close-button" onclick="closeHelpModal()">×</button>
-            <h2 style="color: #667eea; margin-bottom: 25px; text-align: center;">📖 价格计算工具使用说明</h2>
-            
-            <div style="margin-bottom: 25px;">
-                <h3 style="color: #764ba2; margin-bottom: 15px;">🚀 功能简介</h3>
-                <ul style="line-height: 1.8; color: #555;">
-                    <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
-                    <li>支持单条计算和批量导入/导出</li>
-                    <li>支持CSV和XLSX格式</li>
-                    <li>支持实时可视化结果</li>
-                </ul>
-            </div>
-            
-            <div style="margin-bottom: 25px;">
-                <h3 style="color: #764ba2; margin-bottom: 15px;">📋 使用方法</h3>
-                <ol style="line-height: 1.8; color: #555;">
-                    <li><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
-                    <li><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
-                </ol>
-            </div>
-            
-            <div style="margin-bottom: 25px;">
-                <h3 style="color: #764ba2; margin-bottom: 15px;">💡 提示</h3>
-                <ul style="line-height: 1.8; color: #555;">
-                    <li>所有数据仅在当前会话有效</li>
-                    <li>支持导出计算结果</li>
-                    <li><strong>此工具仅作为价格推算参考，实际价格要求以卖家后台为准</strong></li>
-                </ul>
-            </div>
-            
-            <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee;">
-                <p style="color: #888; margin: 0;">© 版权所有：SL merchandising team + Liya Liang</p>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // 点击弹窗外部关闭弹窗
-        document.getElementById('helpModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeHelpModal();
-            }
-        });
-        
-        // 关闭弹窗函数
-        function closeHelpModal() {
-            document.getElementById('helpModal').style.display = 'none';
-            // 移除URL中的help参数，避免后续交互再次自动弹出
-            try {
-                const url = new URL(window.location);
-                url.searchParams.delete('help');
-                window.history.replaceState({}, '', url);
-            } catch (e) {}
-        }
-        
-        // 监听键盘ESC键关闭弹窗
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeHelpModal();
-            }
-        });
-    </script>
-    """, unsafe_allow_html=True)
+<div class="help-modal" id="helpModal">
+<div class="help-modal-content">
+<button class="close-button" onclick="closeHelpModal()">×</button>
+<h2 style="color: #667eea; margin-bottom: 25px; text-align: center;">📖 价格计算工具使用说明</h2>
+
+<div style="margin-bottom: 25px;">
+<h3 style="color: #764ba2; margin-bottom: 15px;">🚀 功能简介</h3>
+<ul style="line-height: 1.8; color: #555;">
+<li>快速计算商品活动前价格要求，并给出价格策略建议</li>
+<li>支持单条计算和批量导入/导出</li>
+<li>支持CSV和XLSX格式</li>
+<li>支持实时可视化结果</li>
+</ul>
+</div>
+
+<div style="margin-bottom: 25px;">
+<h3 style="color: #764ba2; margin-bottom: 15px;">📋 使用方法</h3>
+<ol style="line-height: 1.8; color: #555;">
+<li><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
+<li><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
+</ol>
+</div>
+
+<div style="margin-bottom: 25px;">
+<h3 style="color: #764ba2; margin-bottom: 15px;">💡 提示</h3>
+<ul style="line-height: 1.8; color: #555;">
+<li>所有数据仅在当前会话有效</li>
+<li>支持导出计算结果</li>
+<li><strong>此工具仅作为价格推算参考，实际价格要求以卖家后台为准</strong></li>
+</ul>
+</div>
+
+<div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee;">
+<p style="color: #888; margin: 0;">© 版权所有：SL merchandising team + Liya Liang</p>
+</div>
+</div>
+</div>
+
+<script>
+document.getElementById('helpModal').addEventListener('click', function(e) {
+  if (e.target === this) { closeHelpModal(); }
+});
+function closeHelpModal() {
+  document.getElementById('helpModal').style.display = 'none';
+  try { const url = new URL(window.location); url.searchParams.delete('help'); window.history.replaceState({}, '', url); } catch (e) {}
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeHelpModal(); } });
+</script>
+""", unsafe_allow_html=True)
 
 # 主标题和促销日历布局
 col_main, col_calendar = st.columns([3, 1])
