@@ -360,58 +360,70 @@ if not st.session_state.show_help:
             st.rerun()
 
 if st.session_state.show_help:
-    # 使用说明弹窗 - 白色背景，点击任意位置关闭
-    st.markdown("""
-    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                background: rgba(0,0,0,0.5); z-index: 9999; display: flex; 
-                justify-content: center; align-items: center;" 
-         onclick="document.querySelector('[data-testid=\\"close_help\\"]').click()">
-        <div style="background: white; padding: 40px; border-radius: 20px; 
-                    max-width: 600px; max-height: 80vh; overflow-y: auto; 
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);" 
-             onclick="event.stopPropagation()">
-            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">
-                📖 价格计算工具使用说明
-            </h2>
-            
-            <div style="margin-bottom: 25px;">
-                <h3 style="color: #667eea;">📖 功能简介</h3>
-                <ul style="line-height: 1.8;">
-                    <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
-                    <li>支持单条计算和批量导入/导出</li>
-                    <li>支持CSV和XLSX格式</li>
-                    <li>支持实时可视化结果</li>
-                </ul>
-            </div>
-            
-            <div style="margin-bottom: 25px;">
-                <h3 style="color: #764ba2;">🚀 使用方法</h3>
-                <ol style="line-height: 1.8;">
-                    <li><strong>单条计算</strong>：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
-                    <li><strong>批量导入/导出</strong>：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
-                </ol>
-            </div>
-            
-            <div style="margin-bottom: 25px;">
-                <h3 style="color: #e67e22;">💡 提示</h3>
-                <ul style="line-height: 1.8;">
-                    <li>所有数据仅在当前会话有效</li>
-                    <li>支持导出计算结果</li>
-                    <li style="color: #e74c3c; font-weight: 600;">此工具仅作为价格推算参考，实际价格要求以卖家后台为准</li>
-                </ul>
-            </div>
-            
-            <hr style="margin: 25px 0; border: none; border-top: 2px solid #eee;">
-            <p style="text-align: center; color: #888; margin: 0;">
-                © 版权所有：SL merchandising team + Liya Liang
-            </p>
+    # 使用说明弹窗 - 使用Streamlit组件
+    with st.container():
+        st.markdown("""
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: rgba(0,0,0,0.5); z-index: 9999; display: flex; 
+                    justify-content: center; align-items: center;">
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("关闭说明", key="close_help"):
-        st.session_state.show_help = False
-        st.rerun()
+        """, unsafe_allow_html=True)
+        
+        # 弹窗内容
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            with st.container():
+                st.markdown("""
+                <div style="background: white; padding: 40px; border-radius: 20px; 
+                            box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: 50px 0;">
+                </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("### 📖 价格计算工具使用说明")
+                
+                st.markdown("#### 📖 功能简介")
+                st.markdown("""
+                - 快速计算商品活动前价格要求，并给出价格策略建议
+                - 支持单条计算和批量导入/导出
+                - 支持CSV和XLSX格式
+                - 支持实时可视化结果
+                """)
+                
+                st.markdown("#### 🚀 使用方法")
+                st.markdown("""
+                1. **单条计算**：在对应输入框中输入参数，点击计算，查看计算结果和操作建议
+                2. **批量导入/导出**：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果
+                """)
+                
+                st.markdown("#### 💡 提示")
+                st.markdown("""
+                - 所有数据仅在当前会话有效
+                - 支持导出计算结果
+                - **此工具仅作为价格推算参考，实际价格要求以卖家后台为准**
+                """)
+                
+                st.divider()
+                st.markdown("<p style='text-align: center; color: #888;'>© 版权所有：SL merchandising team + Liya Liang</p>", unsafe_allow_html=True)
+                
+                col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
+                with col_btn2:
+                    if st.button("关闭说明", key="close_help", use_container_width=True):
+                        st.session_state.show_help = False
+                        st.rerun()
+                
+                # 点击任意位置关闭的JavaScript
+                st.markdown("""
+                <script>
+                setTimeout(function() {
+                    document.addEventListener('click', function(e) {
+                        if (!e.target.closest('.stContainer') && 
+                            !e.target.closest('[data-testid="close_help"]')) {
+                            document.querySelector('[data-testid="close_help"]').click();
+                        }
+                    });
+                }, 1000);
+                </script>
+                """, unsafe_allow_html=True)
 
 # 主标题和促销日历布局
 col_main, col_calendar = st.columns([3, 1])
