@@ -389,12 +389,18 @@ div[data-testid="stVerticalBlock"] > [data-testid="column"] {
 }
 .stApp > header {
     background: transparent !important;
+    display: none !important;
 }
 [data-testid="stToolbar"] {
     background: transparent !important;
+    display: none !important;
 }
 [data-testid="stDecoration"] {
     background: transparent !important;
+    display: none !important;
+}
+[data-testid="stSideBarNav"] {
+    display: none !important;
 }
 
 button[kind="primary"] {
