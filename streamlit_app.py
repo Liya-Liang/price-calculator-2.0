@@ -1,67 +1,25 @@
 import streamlit as st
-import re
+import streamlit.components.v1 as components
+PROMO_CALENDAR = {
+    "US": [
+        {"name": "Prime big deal day", "date": "待官宣"},
+        {"name": "BFCM", "date": "2025年11月20日-12月1日"}
+    ],
+    "CA": [
+        {"name": "Prime big deal day", "date": "待官宣"},
+        {"name": "BFCM", "date": "2025年11月20日-12月1日"}
+    ]
+}
 import pandas as pd
-from docx import Document
 from datetime import datetime, timedelta
 
 # 页面配置
-page_title = "亚马逊价格规划看板"
-page_icon = "📊"
-layout = "wide"
-initial_sidebar_state = "collapsed"
 st.set_page_config(
-    page_title=page_title,
-    page_icon=page_icon,
-    layout=layout,
-    initial_sidebar_state=initial_sidebar_state
+    page_title="亚马逊价格规划看板",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
-def read_word_docx(doc_path):
-    doc = Document(doc_path)
-    text = '\n'.join([para.text for para in doc.paragraphs])
-    return text
-
-word_file_path = '/home/guangfl/PricingTool2.0/edit 3.docx'
-word_text = read_word_docx(word_file_path)
-# 自动提取大促时间点（如：日期、节日等）
-def extract_promo_dates(text):
-    # 匹配常见日期格式（如2025-09-01、9月1日、9/1等）和节日关键词
-    date_pattern = r'(\d{4}[年/-]\d{1,2}[月/-]\d{1,2}日?|\d{1,2}[月/-]\d{1,2}日?|\d{1,2}/\d{1,2})'
-    festival_pattern = r'(Prime Day|黑五|网一|圣诞|感恩节|返校|新年|春节|618|双11|双12|Labor Day|Easter|Mother\'s Day|Father\'s Day)'
-    matches = re.findall(f'{date_pattern}|{festival_pattern}', text)
-    # 整理结果
-    promo_dates = []
-    for m in matches:
-        date_str = ''.join(m)
-        if date_str:
-            promo_dates.append(date_str)
-    return promo_dates
-
-promo_dates = extract_promo_dates(word_text)
-
-# 促销日历弹窗功能
-if 'show_calendar' not in st.session_state:
-    st.session_state['show_calendar'] = False
-
-calendar_btn_col = st.columns([8,1])[1]
-with calendar_btn_col:
-    if st.button('促销日历', key='calendar_btn'):
-        st.session_state['show_calendar'] = True
-        st.rerun()
-
-if st.session_state['show_calendar']:
-    with st.container():
-        st.markdown("""
-        <div style='position:fixed;top:40px;right:40px;width:400px;z-index:9999;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);padding:32px 24px 24px 24px;'>
-            <div style='display:flex;justify-content:space-between;align-items:center;'>
-                <h3 style='margin:0;'>促销日历</h3>
-                <button onclick="window.location.reload()" style='background:none;border:none;font-size:22px;cursor:pointer;line-height:1;'>×</button>
-            </div>
-            <hr/>
-            <ul style='padding-left:18px;'>
-                {promo_items}
-            </ul>
-        </div>
-        """.replace('{promo_items}', ''.join([f"<li style='margin-bottom:8px;font-size:16px;'>{d}</li>" for d in promo_dates])), unsafe_allow_html=True)
 
 # 自定义CSS - 完全复制HTML版本的样式
 st.markdown("""
@@ -442,32 +400,90 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# 促销日历弹窗按钮（右上角）
+calendar_btn_col = st.columns([10,1])[1]
+if calendar_btn_col.button("促销日历", key="promo_calendar_btn"):
+    st.session_state.show_calendar = True
+
+if st.session_state.get("show_calendar", False):
+    with st.container():
+        st.markdown("""
+        <div style="position:fixed; top:40px; right:40px; z-index:9999; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.18); padding:32px 40px; min-width:320px; max-width:400px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style='margin:0;'>促销日历</h3>
+                <button onclick="window.parent.postMessage({type: 'close_calendar'}, '*')" style="background:none; border:none; font-size:22px; cursor:pointer;">✕</button>
+            </div>
+            <hr>
+            <div style='font-size:16px;'>
+                <b>美国站：</b><br>
+                - Prime big deal day：待官宣<br>
+                - BFCM：2025年11月20日-12月1日<br><br>
+                <b>加拿大站：</b><br>
+                - Prime big deal day：待官宣<br>
+                - BFCM：2025年11月20日-12月1日<br>
+            </div>
+        </div>
+        <script>
+        window.addEventListener('message', function(e) {
+            if(e.data.type === 'close_calendar') {
+                window.parent.document.querySelector('iframe').style.display = 'none';
+            }
+        });
+        </script>
+        """, unsafe_allow_html=True)
+        if st.button("关闭日历", key="close_calendar_btn"):
+            st.session_state.show_calendar = False
+            st.rerun()
+
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
 
-def calculate_pricing(historical_price, vrp, t30_lowest_price, selected_types, rules):
+def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, hamp_net_price, selected_types, rules, was_price):
     results = {
         "prePromoMaxPrice": vrp * 0.95,
         "promoMaxPrice": vrp,
         "postPromoPrice": vrp * 0.95,
         "logic": []
     }
-    
-    if not selected_types:
-        results["logic"].append("无促销活动，建议保持VRP价格")
-    else:
-        min_promo_price = vrp
-        
-        for promo_type in selected_types:
-            if promo_type in rules:
-                rule = rules[promo_type]
-                calculated_price = vrp * (1 - rule["discount"] / 100)
-                calculated_price = max(calculated_price, min(t30_lowest_price, historical_price * 0.95))
-                min_promo_price = min(min_promo_price, calculated_price)
-                results["logic"].append(f"{promo_type}: 建议价格 ${calculated_price:.2f}")
-        
-        results["promoMaxPrice"] = min_promo_price
-    
+    # 促销类型冲突和叠加逻辑
+    main_promos = {"manualBestDeal", "selfServiceBestDeal", "lightningDeal", "priceDiscount", "primeExclusive"}
+    coupon_selected = "coupon" in selected_types
+    main_selected = [p for p in selected_types if p in main_promos]
+    if len(main_selected) > 1:
+        results["logic"].append("禁止：同一时间只能选择一个主促销类型（顶级促销/Z划算/秒杀/价格折扣/Prime专享折扣）")
+        results["promoMaxPrice"] = None
+        return results
+    if coupon_selected and main_selected:
+        results["logic"].append("提示：价格将会叠加")
+    # 价格计算逻辑
+    min_promo_price = vrp
+    for promo_type in selected_types:
+        price = None
+        if promo_type == "manualBestDeal":
+            # 主促销规则
+            discount = rules[promo_type]["discount"]
+            price = vrp * (1 - discount / 100)
+            price = min(price, hamp_net_price, was_price)
+        elif promo_type == "selfServiceBestDeal":
+            discount = rules[promo_type]["discount"]
+            price = vrp * (1 - discount / 100)
+            price = min(price, hamp_net_price, was_price)
+        elif promo_type == "lightningDeal":
+            discount = rules[promo_type]["discount"]
+            price = vrp * (1 - discount / 100)
+            price = min(price, hamp_net_price, was_price)
+        elif promo_type in ["priceDiscount", "primeExclusive"]:
+            discount = rules[promo_type]["discount"]
+            price = vrp * (1 - discount / 100)
+            price = min(price, t30_lowest_price_with_promo * 0.95, historical_price * 0.95)
+        elif promo_type == "coupon":
+            discount = rules[promo_type]["discount"]
+            price = vrp * (1 - discount / 100)
+            price = min(price, was_price * 0.95)
+        if price is not None:
+            min_promo_price = min(min_promo_price, price)
+            results["logic"].append(f"{promo_type}: 建议价格 ${price:.2f}")
+    results["promoMaxPrice"] = min_promo_price
     return results
 
 # 单个ASIN查询
