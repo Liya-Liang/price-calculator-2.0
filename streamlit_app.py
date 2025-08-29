@@ -351,43 +351,46 @@ if 'show_help' not in st.session_state:
     st.session_state.show_help = True
 
 # 顶部帮助按钮（当说明关闭时显示）
-if not st.session_state.show_help:
-    col1, col2, col3 = st.columns([6, 1, 1])
-    with col2:
-        if st.button("📖 使用说明", key="show_help_btn", help="点击查看使用说明"):
-            st.session_state.show_help = True
-            st.rerun()
+
+# 顶部按钮区：使用说明 + 促销日历
+top_cols = st.columns([8,1,1])
+with top_cols[1]:
+    if st.button("📖 使用说明", key="show_help_btn", help="点击查看使用说明"):
+        st.session_state.show_help = True
+        st.rerun()
+with top_cols[2]:
+    if st.button("促销日历", key="promo_calendar_btn_top"):
+        st.session_state.show_calendar = True
 
 if st.session_state.show_help:
-    st.markdown("### 📖 价格计算工具使用说明")
-    
-    with st.container():
-        st.markdown("#### 📖 功能简介")
-        st.markdown("""
-        - 快速计算商品活动前价格要求，并给出价格策略建议
-        - 支持单条计算和批量导入/导出
-        - 支持CSV和XLSX格式
-        - 支持实时可视化结果
-        """)
-    
-    with st.container():
-        st.markdown("#### 🚀 使用方法")
-        st.markdown("""
-        1. **单条计算**：在对应输入框中输入参数，点击计算，查看计算结果和操作建议
-        2. **批量导入/导出**：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果
-        """)
-    
-    with st.container():
-        st.markdown("#### 💡 提示")
-        st.markdown("""
-        - 所有数据仅在当前会话有效
-        - 支持导出计算结果
-        - **此工具仅作为价格推算参考，实际价格要求以卖家后台为准**
-        """)
-    
-    st.divider()
-    st.markdown("<p style='text-align: center; color: #888;'>© 版权所有：SL merchandising team + Liya Liang</p>", unsafe_allow_html=True)
-    
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius: 18px; box-shadow: 0 8px 32px rgba(102,126,234,0.10); padding: 40px 48px; margin-bottom: 32px;">
+        <h2 style='color:#4b3fa7; margin-bottom:18px;'>📖 价格计算工具使用说明</h2>
+        <div style='font-size:18px; margin-bottom:18px;'><b>功能简介</b></div>
+        <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
+            <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
+            <li>支持单条计算和批量导入/导出</li>
+            <li>支持CSV和XLSX格式</li>
+            <li>支持实时可视化结果</li>
+        </ul>
+        <div style='font-size:18px; margin-bottom:18px;'><b>使用方法</b></div>
+        <ol style='font-size:16px; color:#333; margin-bottom:18px;'>
+            <li>单条计算：在对应输入框中输入参数，点击计算，查看计算结果和操作建议</li>
+            <li>批量导入/导出：下载模板，填写后上传，查看计算结果和操作建议，可直接线上查看结果也可批量下载结果</li>
+        </ol>
+        <div style='font-size:18px; margin-bottom:18px;'><b>提示</b></div>
+        <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
+            <li>所有数据仅在当前会话有效</li>
+            <li>支持导出计算结果</li>
+            <li><b>此工具仅作为价格推算参考，实际价格要求以卖家后台为准</b></li>
+        </ul>
+        <hr style='margin:24px 0;'>
+        <p style='text-align: center; color: #888;'>© 版权所有：SL merchandising team + Liya Liang</p>
+        <div style='text-align:right; margin-top:12px;'>
+            <button style='background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;padding:10px 28px;border-radius:8px;font-size:16px;cursor:pointer;' onclick="window.parent.postMessage({type: 'close_help'}, '*')">关闭说明</button>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     if st.button("关闭说明", key="close_help"):
         st.session_state.show_help = False
         st.rerun()
@@ -401,39 +404,38 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 促销日历弹窗按钮（右上角）
-calendar_btn_col = st.columns([10,1])[1]
-if calendar_btn_col.button("促销日历", key="promo_calendar_btn"):
-    st.session_state.show_calendar = True
 
+# 促销日历弹窗（美化，右上角，支持关闭）
 if st.session_state.get("show_calendar", False):
-    with st.container():
-        st.markdown("""
-        <div style="position:fixed; top:40px; right:40px; z-index:9999; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.18); padding:32px 40px; min-width:320px; max-width:400px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style='margin:0;'>促销日历</h3>
-                <button onclick="window.parent.postMessage({type: 'close_calendar'}, '*')" style="background:none; border:none; font-size:22px; cursor:pointer;">✕</button>
-            </div>
-            <hr>
-            <div style='font-size:16px;'>
-                <b>美国站：</b><br>
-                - Prime big deal day：待官宣<br>
-                - BFCM：2025年11月20日-12月1日<br><br>
-                <b>加拿大站：</b><br>
-                - Prime big deal day：待官宣<br>
-                - BFCM：2025年11月20日-12月1日<br>
-            </div>
+    st.markdown("""
+    <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
+            <button onclick="window.parent.postMessage({type: 'close_calendar'}, '*')" style="background:none; border:none; font-size:28px; color:#4b3fa7; cursor:pointer; font-weight:bold;">✕</button>
         </div>
-        <script>
-        window.addEventListener('message', function(e) {
-            if(e.data.type === 'close_calendar') {
-                window.parent.document.querySelector('iframe').style.display = 'none';
-            }
-        });
-        </script>
-        """, unsafe_allow_html=True)
-        if st.button("关闭日历", key="close_calendar_btn"):
-            st.session_state.show_calendar = False
-            st.rerun()
+        <hr style='margin:18px 0;'>
+        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
+        <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
+            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
+            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
+        </ul>
+        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>加拿大站:</b></div>
+        <ul style='font-size:16px; color:#333;'>
+            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
+            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
+        </ul>
+    </div>
+    <script>
+    window.addEventListener('message', function(e) {
+        if(e.data.type === 'close_calendar') {
+            window.parent.document.querySelector('iframe').style.display = 'none';
+        }
+    });
+    </script>
+    """, unsafe_allow_html=True)
+    if st.button("关闭日历", key="close_calendar_btn"):
+        st.session_state.show_calendar = False
+        st.rerun()
 
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
