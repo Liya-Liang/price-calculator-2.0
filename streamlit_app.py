@@ -452,7 +452,7 @@ if st.session_state.show_help:
     st.markdown("""
 <div class="help-modal" id="helpModal">
 <div class="help-modal-content">
-<button class="close-button" onclick="closeHelpModal()">×</button>
+<a class="close-button" href="?help=close" style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none;">×</a>
 <h2 style="color: #667eea; margin-bottom: 25px; text-align: center;">📖 价格计算工具使用说明</h2>
 
 <div style="margin-bottom: 25px;">
@@ -488,17 +488,7 @@ if st.session_state.show_help:
 </div>
 </div>
 
-<script>
-function closeHelpModal() {
-  var modal = document.getElementById('helpModal');
-  if (modal) { modal.style.display = 'none'; }
-  try {
-    const url = new URL(window.location);
-    url.searchParams.delete('help');
-    window.history.replaceState({}, '', url);
-  } catch (e) {}
-}
-</script>
+<script></script>
 """, unsafe_allow_html=True)
 
 # 主标题和促销日历布局
