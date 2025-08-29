@@ -444,19 +444,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 隐藏的 Streamlit 按钮容器，用于无刷新触发弹窗
-st.markdown('<div id="help_open_container" style="display:none;">', unsafe_allow_html=True)
-_open_click = st.button("help_open_internal", key="help_open_internal")
-st.markdown('</div>', unsafe_allow_html=True)
-if _open_click:
-    st.session_state.show_help = True
-    st.rerun()
-
-# 右上角使用说明按钮（固定位置，点击触发隐藏按钮实现无刷新打开）
-st.markdown(
-    '<a class="help-button" href="#" onclick="var btn=document.querySelector(\'#help_open_container button\'); if(btn){btn.click();} return false;">📖 使用说明</a>',
-    unsafe_allow_html=True
-)
+# 右上角使用说明按钮（固定位置，点击通过URL参数打开弹窗）
+st.markdown('<a class="help-button" href="?help=open" target="_self">📖 使用说明</a>', unsafe_allow_html=True)
 
 # 使用说明弹窗（使用 Streamlit 原生对话框，关闭稳定可靠）
 @st.dialog("📖 价格计算工具使用说明")
