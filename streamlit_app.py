@@ -295,44 +295,56 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 促销规则配置
+# 促销规则配置 - 根据文档更新
 PROMO_RULES = {
     "US": {
         "regular": {
-            "manualBestDeal": {"discount": 20},
-            "selfServiceBestDeal": {"discount": 10},
-            "lightningDeal": {"discount": 15},
-            "priceDiscount": {"discount": 5},
-            "primeExclusive": {"discount": 5},
-            "coupon": {"discount": 5}
+            "manualBestDeal": {"discount": 20, "hamp_net_requirement": True, "was_price_requirement": True},
+            "selfServiceBestDeal": {"discount": 10, "hamp_net_requirement": True, "was_price_requirement": True},
+            "lightningDeal": {"discount": 15, "hamp_net_requirement": True, "was_price_requirement": True},
+            "priceDiscount": {"discount": 5, "t30_discount": 5, "current_price_discount": 5},
+            "primeExclusive": {"discount": 5, "t30_discount": 5, "current_price_discount": 5},
+            "coupon": {"discount_min": 5, "discount_max": 50, "was_price_max_increase": 30, "was_price_discount": 5}
         },
         "major": {
-            "manualBestDeal": {"discount": 30},
-            "selfServiceBestDeal": {"discount": 15},
-            "lightningDeal": {"discount": 20},
-            "priceDiscount": {"discount": 5},
-            "primeExclusive": {"discount": 15},
-            "coupon": {"discount": 5}
+            "manualBestDeal": {"discount": 30, "hamp_net_requirement": True, "was_price_discount": 5},
+            "selfServiceBestDeal": {"discount": 15, "hamp_net_requirement": True, "was_price_discount": 5},
+            "lightningDeal": {"discount": 20, "hamp_net_requirement": True, "was_price_discount": 5},
+            "priceDiscount": {"discount": 5, "t30_discount": 5, "current_price_discount": 5},
+            "primeExclusive": {"discount": 15, "t30_discount": 5, "was_price_discount": 5, "t30_promo_requirement": True},
+            "coupon": {"discount_min": 5, "discount_max": 50, "was_price_max_increase": 30, "was_price_requirement": True}
         }
     },
     "CA": {
         "regular": {
-            "manualBestDeal": {"discount": 20},
-            "selfServiceBestDeal": {"discount": 10},
-            "lightningDeal": {"discount": 15},
-            "priceDiscount": {"discount": 5},
-            "primeExclusive": {"discount": 5},
-            "coupon": {"discount": 5}
+            "manualBestDeal": {"discount": 20, "hamp_net_requirement": True, "was_price_requirement": True},
+            "selfServiceBestDeal": {"discount": 10, "hamp_net_requirement": True, "was_price_requirement": True},
+            "lightningDeal": {"discount": 15, "hamp_net_requirement": True, "was_price_requirement": True},
+            "priceDiscount": {"discount": 5, "t30_discount": 5, "current_price_discount": 5},
+            "primeExclusive": {"discount": 5, "t30_discount": 5, "current_price_discount": 5},
+            "coupon": {"discount_min": 5, "discount_max": 50, "was_price_max_increase": 30, "was_price_requirement": True}
         },
         "major": {
-            "manualBestDeal": {"discount": 30},
-            "selfServiceBestDeal": {"discount": 15},
-            "lightningDeal": {"discount": 20},
-            "priceDiscount": {"discount": 5},
-            "primeExclusive": {"discount": 15},
-            "coupon": {"discount": 5}
+            "manualBestDeal": {"discount": 30, "hamp_net_requirement": True, "was_price_discount": 5},
+            "selfServiceBestDeal": {"discount": 15, "hamp_net_requirement": True, "was_price_discount": 5},
+            "lightningDeal": {"discount": 20, "hamp_net_requirement": True, "was_price_discount": 5},
+            "priceDiscount": {"discount": 5, "t30_discount": 5, "current_price_discount": 5},
+            "primeExclusive": {"discount": 15, "t30_discount": 5, "was_price_discount": 5, "t30_promo_requirement": True},
+            "coupon": {"discount_min": 5, "discount_max": 50, "was_price_max_increase": 30, "was_price_requirement": True}
         }
     }
+}
+
+# 大促日历信息
+MAJOR_SALES_CALENDAR = {
+    "US": [
+        {"name": "Prime Big Deal Day", "start": "2025-10-07", "end": "2025-10-08"},
+        {"name": "BFCM", "start": "2025-11-20", "end": "2025-12-01"}
+    ],
+    "CA": [
+        {"name": "Prime Big Deal Day", "start": "2025-10-07", "end": "2025-10-10"},
+        {"name": "BFCM", "start": "2025-11-20", "end": "2025-12-01"}
+    ]
 }
 
 # 使用说明
@@ -348,6 +360,23 @@ if not st.session_state.show_help:
             st.rerun()
 
 if st.session_state.show_help:
+    # 添加点击任意位置关闭的JavaScript
+    st.markdown("""
+    <script>
+    document.addEventListener('click', function(e) {
+        // 检查点击的元素是否是关闭按钮
+        if (e.target.getAttribute('data-testid') !== 'close_help' && 
+            !e.target.closest('[data-testid="close_help"]')) {
+            // 模拟点击关闭按钮
+            const closeBtn = document.querySelector('[data-testid="close_help"]');
+            if (closeBtn) {
+                closeBtn.click();
+            }
+        }
+    });
+    </script>
+    """, unsafe_allow_html=True)
+    
     st.markdown("### 📖 价格计算工具使用说明")
     
     with st.container():
@@ -389,10 +418,63 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# 大促日历信息
+st.markdown("### 📅 2025年大促日历")
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("#### 🇺🇸 美国站")
+    for event in MAJOR_SALES_CALENDAR["US"]:
+        st.markdown(f"**{event['name']}**: {event['start']} 至 {event['end']}")
+
+with col2:
+    st.markdown("#### 🇨🇦 加拿大站")
+    for event in MAJOR_SALES_CALENDAR["CA"]:
+        st.markdown(f"**{event['name']}**: {event['start']} 至 {event['end']}")
+
+st.divider()
+
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
 
-def calculate_pricing(historical_price, vrp, t30_lowest_price, selected_types, rules):
+def validate_promo_types(selected_types):
+    """验证促销类型组合"""
+    exclusive_types = ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal', 'priceDiscount', 'primeExclusive']
+    selected_exclusive = [t for t in selected_types if t in exclusive_types]
+    has_coupon = 'coupon' in selected_types
+    
+    if len(selected_exclusive) > 1:
+        return {"valid": False, "message": "禁止：顶级促销、Z划算、秒杀、Prime专享折扣、价格折扣不能同时选择"}
+    
+    if has_coupon and len(selected_exclusive) > 0:
+        return {"valid": True, "message": "价格将会叠加：优惠券与其他促销类型叠加计算"}
+    
+    return {"valid": True, "message": ""}
+
+def calculate_stacked_discount(selected_types, vrp):
+    """计算叠加折扣"""
+    exclusive_types = ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal', 'priceDiscount', 'primeExclusive']
+    selected_exclusive = [t for t in selected_types if t in exclusive_types]
+    has_coupon = 'coupon' in selected_types
+    
+    if not has_coupon:
+        return 0
+    
+    coupon_discount = 0.25  # 优惠券25%
+    
+    if any(t in ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal'] for t in selected_exclusive):
+        # 秒杀/顶级促销/Z划算(20% off) + 优惠券(25% off) = 45% off
+        total_discount = 0.45
+    elif any(t in ['primeExclusive', 'priceDiscount'] for t in selected_exclusive):
+        # 优惠券(25% off) + Prime专享折扣/价格折扣(30% off) = 47.5% off
+        total_discount = 0.475
+    else:
+        total_discount = coupon_discount
+    
+    return vrp * (1 - total_discount)
+
+def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, selected_types, rules):
+    """根据文档要求计算价格"""
     results = {
         "prePromoMaxPrice": vrp * 0.95,
         "promoMaxPrice": vrp,
@@ -402,19 +484,80 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, selected_types, r
     
     if not selected_types:
         results["logic"].append("无促销活动，建议保持VRP价格")
-    else:
-        min_promo_price = vrp
-        
-        for promo_type in selected_types:
-            if promo_type in rules:
-                rule = rules[promo_type]
-                calculated_price = vrp * (1 - rule["discount"] / 100)
-                calculated_price = max(calculated_price, min(t30_lowest_price, historical_price * 0.95))
-                min_promo_price = min(min_promo_price, calculated_price)
-                results["logic"].append(f"{promo_type}: 建议价格 ${calculated_price:.2f}")
-        
-        results["promoMaxPrice"] = min_promo_price
+        return results
     
+    # 验证促销类型组合
+    validation = validate_promo_types(selected_types)
+    if not validation["valid"]:
+        results["logic"].append(f"错误：{validation['message']}")
+        return results
+    
+    if validation["message"]:
+        results["logic"].append(validation["message"])
+    
+    # 计算叠加折扣
+    if 'coupon' in selected_types and len([t for t in selected_types if t in ['manualBestDeal', 'selfServiceBestDeal', 'lightningDeal', 'priceDiscount', 'primeExclusive']]) > 0:
+        stacked_price = calculate_stacked_discount(selected_types, vrp)
+        results["promoMaxPrice"] = stacked_price
+        results["logic"].append(f"叠加计算后最终价格: ${stacked_price:.2f}")
+        return results
+    
+    # 单独促销类型计算
+    min_promo_price = vrp
+    
+    for promo_type in selected_types:
+        if promo_type not in rules:
+            continue
+            
+        rule = rules[promo_type]
+        
+        if promo_type == 'coupon':
+            # 优惠券特殊处理
+            discount_price = vrp * 0.75  # 默认25%折扣
+            
+            # 检查was_price要求
+            if rule.get("was_price_requirement") and discount_price >= historical_price:
+                discount_price = historical_price * 0.95
+            
+            # 检查was_price最大增幅要求
+            if rule.get("was_price_max_increase"):
+                max_current_price = historical_price * (1 + rule["was_price_max_increase"] / 100)
+                if vrp > max_current_price:
+                    results["logic"].append(f"警告：当前价格超过was_price的{rule['was_price_max_increase']}%限制")
+            
+            min_promo_price = min(min_promo_price, discount_price)
+            results["logic"].append(f"优惠券: 建议价格 ${discount_price:.2f}")
+            
+        else:
+            # 其他促销类型
+            discount_price = vrp * (1 - rule["discount"] / 100)
+            
+            # HAMP Net Price要求
+            if rule.get("hamp_net_requirement") and discount_price > t30_lowest_price:
+                discount_price = t30_lowest_price
+                results["logic"].append(f"{promo_type}: 受HAMP Net Price限制")
+            
+            # was_price要求
+            if rule.get("was_price_requirement") and discount_price >= historical_price:
+                discount_price = historical_price * 0.95
+                results["logic"].append(f"{promo_type}: 受was_price限制")
+            
+            # was_price折扣要求
+            if rule.get("was_price_discount"):
+                required_price = historical_price * (1 - rule["was_price_discount"] / 100)
+                if discount_price > required_price:
+                    discount_price = required_price
+                    results["logic"].append(f"{promo_type}: 受was_price折扣要求限制")
+            
+            # T30含促销价要求
+            if rule.get("t30_promo_requirement") and discount_price > t30_lowest_price_with_promo:
+                discount_price = t30_lowest_price_with_promo
+                results["logic"].append(f"{promo_type}: 受T30含促销价限制")
+            
+            min_promo_price = min(min_promo_price, discount_price)
+            results["logic"].append(f"{promo_type}: 建议价格 ${discount_price:.2f}")
+    
+    results["promoMaxPrice"] = min_promo_price
     return results
 
 # 单个ASIN查询
@@ -456,7 +599,7 @@ with tab1:
     if st.button("生成价格规划", type="primary"):
         if asin and historical_price and vrp and t30_lowest_price:
             rules = PROMO_RULES[market][promo_period]
-            results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
+            results = calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, selected_promos, rules)
             
             st.markdown('<div class="results-section">', unsafe_allow_html=True)
             st.subheader("90天价格建议")
@@ -598,7 +741,7 @@ with tab2:
                         t30_lowest = float(row.get('T30最低价', 25.99))
                         t30_lowest_with_promo = float(row.get('含促销T30最低价', 23.99))
                         
-                        pricing = calculate_pricing(historical_price, vrp, t30_lowest, batch_selected_promos, rules)
+                        pricing = calculate_pricing(historical_price, vrp, t30_lowest, t30_lowest_with_promo, batch_selected_promos, rules)
                         
                         results_list.append({
                             'ASIN': asin,
