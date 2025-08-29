@@ -577,25 +577,13 @@ with tab1:
                 st.markdown(f"""
                 <div class="metric-card">
                     <h4>活动前最高可设价格</h4>
-                       st.markdown(f'<div class="metric-card"><h4>活动前最高可设价格</h4><div class="price-highlight">${results["prePromoMaxPrice"]:.2f}</div></div>', unsafe_allow_html=True)
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-card"><h4>活动前最高可设价格</h4><div class="price-highlight">{results["prePromoMaxPrice"]:.2f}</div></div>', unsafe_allow_html=True)
             
             with col2:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动期间最高可设价格</h4>
-                       st.markdown(f'<div class="metric-card"><h4>活动期间最高可设价格</h4><div class="price-highlight" style="color: #28a745;">${results["promoMaxPrice"]:.2f}</div></div>', unsafe_allow_html=True)
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-card"><h4>活动期间最高可设价格</h4><div class="price-highlight" style="color: #28a745;">{results["promoMaxPrice"]:.2f}</div></div>', unsafe_allow_html=True)
             
             with col3:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动后建议价格</h4>
-                       st.markdown(f'<div class="metric-card"><h4>活动后建议价格</h4><div class="price-highlight" style="color: #007bff;">${results["postPromoPrice"]:.2f}</div></div>', unsafe_allow_html=True)
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-card"><h4>活动后建议价格</h4><div class="price-highlight" style="color: #007bff;">{results["postPromoPrice"]:.2f}</div></div>', unsafe_allow_html=True)
             
             st.subheader("价格建议逻辑")
             for logic in results["logic"]:
