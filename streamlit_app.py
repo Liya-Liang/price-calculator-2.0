@@ -383,19 +383,21 @@ st.markdown("""
     box-shadow: 0 8px 24px rgba(102,126,234,0.18);
 }
 </style>
-
-# 右上角按钮，点击弹窗，去除左侧白色块
-btn_col1, btn_col2, _ = st.columns([1,1,8])
-with btn_col1:
-    if st.button("📖 使用说明", key="show_help_btn_real"):
-        st.session_state.show_help = True
-        st.session_state.show_calendar = False
-        st.rerun()
-with btn_col2:
-    if st.button("🗓️ 促销日历", key="promo_calendar_btn_real"):
-        st.session_state.show_calendar = True
-        st.session_state.show_help = False
-        st.rerun()
+<div style='position: absolute; top: 32px; right: 64px; display: flex; gap: 0;'>
+    <form action="#" method="post" style="margin:0; display:inline;">
+        <button class="top-btn" type="submit" name="show_help_btn">📖 使用说明</button>
+    </form>
+    <form action="#" method="post" style="margin:0; display:inline;">
+        <button class="top-btn" type="submit" name="promo_calendar_btn_top">🗓️ 促销日历</button>
+    </form>
+</div>
+""", unsafe_allow_html=True)
+# 按钮事件处理
+if st.session_state.get('show_help_btn', False) or st.button("", key="show_help_btn_hidden", help="hidden", args=()):
+    st.session_state.show_help = True
+    st.rerun()
+if st.session_state.get('promo_calendar_btn_top', False) or st.button("", key="promo_calendar_btn_top_hidden", help="hidden", args=()):
+    st.session_state.show_calendar = True
 
 if st.session_state.show_help:
     st.markdown("""
