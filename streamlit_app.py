@@ -450,7 +450,6 @@ st.markdown('<a class="help-button" href="?help=open" target="_self">📖 使用
 # 使用说明弹窗（使用 Streamlit 原生对话框，关闭稳定可靠）
 @st.dialog("📖 价格计算工具使用说明")
 def _show_help_dialog():
-
     st.markdown("""
 ### 🚀 功能简介
 - 快速计算商品活动前价格要求，并给出价格策略建议
@@ -469,10 +468,32 @@ def _show_help_dialog():
 <p style='text-align:center; color:#888; border-top:1px solid #eee; padding-top:12px;'>© 版权所有：SL merchandising team + Liya Liang</p>
 """, unsafe_allow_html=True)
 
-    # 不再提供右下角关闭按钮
+    col_close, col_calendar = st.columns([1,1])
+    with col_close:
+        if st.button("关闭", key="help_close_btn"):
+            st.session_state.show_help = False
+            st.rerun()
+    with col_calendar:
+        if st.button("促销日历", key="open_calendar_btn"):
+            st.session_state.show_help = False
+            st.session_state.view_calendar = True
+            st.rerun()
 
 if st.session_state.show_help:
     _show_help_dialog()
+
+# 独立“促销日历”视图
+if st.session_state.get('view_calendar'):
+    st.markdown("""
+    <div class="main-header">
+        <h1>📅 2025年大促日历</h1>
+        <p>重点活动时间速览</p>
+    </div>
+    """, unsafe_allow_html=True)
+    render_sales_calendar()
+    if st.button("返回", key="back_from_calendar"):
+        st.session_state.view_calendar = False
+        st.rerun()
 
 # 主标题
 st.markdown("""
