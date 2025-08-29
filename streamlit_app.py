@@ -355,23 +355,16 @@ if 'show_help' not in st.session_state:
 # 顶部按钮区：使用说明 + 促销日历
 
 # 顶部按钮区美化：并排、风格统一、居右
-st.markdown("""
-<div style='position: absolute; top: 32px; right: 64px; display: flex; gap: 18px; z-index: 100;'>
-    <form action="#" method="post" style="margin:0;">
-        <button type="submit" name="show_help_btn" style="background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); color: #4b3fa7; border: none; border-radius: 14px; padding: 16px 32px; font-size: 18px; font-weight: 500; box-shadow: 0 4px 16px rgba(102,126,234,0.10); cursor:pointer;">📖 使用说明</button>
-    </form>
-    <form action="#" method="post" style="margin:0;">
-        <button type="submit" name="promo_calendar_btn_top" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 14px; padding: 16px 32px; font-size: 18px; font-weight: 500; box-shadow: 0 4px 16px rgba(102,126,234,0.10); cursor:pointer;">促销日历</button>
-    </form>
-</div>
-""", unsafe_allow_html=True)
 
-# 按钮事件处理
-if st.session_state.get('show_help_btn', False) or st.button("📖 使用说明", key="show_help_btn", help="点击查看使用说明"):
-    st.session_state.show_help = True
-    st.rerun()
-if st.session_state.get('promo_calendar_btn_top', False) or st.button("促销日历", key="promo_calendar_btn_top"):
-    st.session_state.show_calendar = True
+# 只保留右上角按钮，点击弹窗
+right_btn_col1, right_btn_col2, _ = st.columns([1,1,8])
+with right_btn_col1:
+    if st.button("📖 使用说明", key="show_help_btn", help="点击查看使用说明"):
+        st.session_state.show_help = True
+        st.rerun()
+with right_btn_col2:
+    if st.button("促销日历", key="promo_calendar_btn_top"):
+        st.session_state.show_calendar = True
 
 if st.session_state.show_help:
     st.markdown("""
@@ -420,10 +413,10 @@ if st.session_state.get("show_calendar", False):
     <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
+            <form action="#" method="post" style="margin:0;">
+                <button type="submit" name="close_calendar_x_btn" style="background:none; border:none; font-size:32px; color:#e74c3c; cursor:pointer; font-weight:bold; margin-left:12px;">✕</button>
+            </form>
         </div>
-        <div style='position:absolute; top:40px; right:48px;'>
-            <style>.close-x-btn {background:none; border:none; font-size:28px; color:#4b3fa7; cursor:pointer; font-weight:bold;}</style>
-            </div>
         <hr style='margin:18px 0;'>
         <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
         <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
@@ -437,9 +430,8 @@ if st.session_state.get("show_calendar", False):
         </ul>
     </div>
     """, unsafe_allow_html=True)
-    # Streamlit按钮实现关闭弹窗
-    close_col = st.columns([10,1])[1]
-    if close_col.button("✕", key="close_calendar_x_btn"):
+    # Streamlit事件处理关闭弹窗
+    if st.session_state.get('close_calendar_x_btn', False) or st.button("", key="close_calendar_x_btn_hidden", help="hidden", args=()):
         st.session_state.show_calendar = False
         st.rerun()
 
