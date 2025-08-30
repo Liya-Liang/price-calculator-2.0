@@ -453,12 +453,12 @@ button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 # 按钮事件处理
-if st.session_state.get('show_help_btn', False) or st.button("", key="show_help_btn_hidden", help="hidden", args=()):
+if st.session_state.get('show_help_btn', False):
     st.session_state.show_help = True
     st.rerun()
-if st.session_state.get('promo_calendar_btn_top', False) or st.button("", key="promo_calendar_btn_top_hidden", help="hidden", args=()):
+if st.session_state.get('promo_calendar_btn_top', False):
     st.session_state.show_calendar = True
-
+    
 if st.session_state.show_help:
     st.markdown("""
     <div style="background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius: 18px; box-shadow: 0 8px 32px rgba(102,126,234,0.10); padding: 40px 48px; margin-bottom: 32px;">
