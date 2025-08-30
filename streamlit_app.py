@@ -30,9 +30,32 @@ st.markdown("""
     header {visibility: hidden;}
     .stDeployButton {visibility: hidden;}
     
-    /* 隐藏辅助按钮的容器 */
-    .element-container:has(button[key="show_help_btn_hidden"]) {display: none !important;}
-    .element-container:has(button[key="promo_calendar_btn_top_hidden"]) {display: none !important;}
+    /* 隐藏辅助按钮 */
+    div[data-testid="element-container"]:has(button[key="show_help_btn_hidden"]) {
+        display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        overflow: hidden !important;
+    }
+    div[data-testid="element-container"]:has(button[key="promo_calendar_btn_top_hidden"]) {
+        display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        overflow: hidden !important;
+    }
+    button[key="show_help_btn_hidden"],
+    button[key="promo_calendar_btn_top_hidden"] {
+        display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        position: absolute !important;
+        overflow: hidden !important;
+    }
     
     /* 隐藏侧边栏控件 */
     section[data-testid="stSidebarNav"] {display: none !important;}
