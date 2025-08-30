@@ -502,29 +502,46 @@ st.markdown("""
 
 # 促销日历弹窗（美化，右上角，支持关闭）
 if st.session_state.get("show_calendar", False):
-    st.markdown("""
-    <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
+    # 创建一个带样式的容器
+    container = st.container()
+    with container:
+        st.markdown("""
+        <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
+            </div>
+            <hr style='margin:18px 0;'>
+            <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
+            <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
+                <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
+                <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
+            </ul>
+            <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>加拿大站:</b></div>
+            <ul style='font-size:16px; color:#333;'>
+                <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
+                <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
+            </ul>
+            <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                <div style="position:absolute; top:32px; right:32px;">
+                    {close_btn}
+                </div>
+            </div>
         </div>
-        <hr style='margin:18px 0;'>
-        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
-        <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
-            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
-            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
-        </ul>
-        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>加拿大站:</b></div>
-        <ul style='font-size:16px; color:#333;'>
-            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
-            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    # 在弹窗右上角显示关闭按钮
-    close_col, _ = st.columns([1, 8])
-    with close_col:
-        if st.button("关闭", key="close_calendar_x"):
+        """.format(close_btn="""<button onclick="document.dispatchEvent(new CustomEvent('close_calendar'))" style="background:none; border:none; color:#e74c3c; cursor:pointer; font-weight:bold; font-size:16px; padding:8px 16px; border-radius:8px; transition:all 0.3s">关闭</button>"""), unsafe_allow_html=True)
+
+        # 添加JavaScript来处理关闭事件
+        st.markdown("""
+        <script>
+        document.addEventListener('close_calendar', function() {
+            window.parent.postMessage({type: 'close_calendar_state'}, '*');
+        });
+        </script>
+        """, unsafe_allow_html=True)
+
+        # 使用空的div来监听关闭事件
+        if st.button('', key='close_calendar_hidden', style={'display': 'none'}):
             st.session_state.show_calendar = False
+            st.rerun()
 
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
