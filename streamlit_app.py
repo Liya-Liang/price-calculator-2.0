@@ -499,52 +499,47 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 促销日历弹窗按钮（右上角）
+if "show_calendar" not in st.session_state:
+    st.session_state.show_calendar = False
 
 # 促销日历弹窗（美化，右上角，支持关闭）
 if st.session_state.get("show_calendar", False):
-    # 创建一个容器来放置弹窗内容
-    with st.container():
-        # 在这里创建一个空元素，用于放置关闭按钮
-        close_btn_placeholder = st.empty()
-        
-        # 显示弹窗内容
-        st.markdown("""
-        <div style="position:fixed; top:32px; right:32px; z-index:9998; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
-            </div>
-            <hr style='margin:18px 0;'>
-            <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
-            <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
-                <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
-                <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
-            </ul>
-            <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>加拿大站:</b></div>
-            <ul style='font-size:16px; color:#333;'>
-                <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
-                <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
-            </ul>
+    # 弹窗内容和美化的X按钮
+    st.markdown("""
+    <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
+            <button id="close-calendar-x" style="background:none; border:none; font-size:32px; color:#e74c3c; cursor:pointer; font-weight:bold; margin-left:12px; border-radius:8px; transition:background 0.2s; padding:2px 10px;" onmouseover="this.style.background='#fdecea'" onmouseout="this.style.background='none'">✕</button>
         </div>
-        """, unsafe_allow_html=True)
-        
-        # 添加关闭按钮到右上角
-        close_btn_placeholder.markdown("""
-        <div style="position:fixed; top:40px; right:48px; z-index:9999;">
-            <button onclick="document.getElementById('close_calendar_btn').click()" 
-                    style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:24px; 
-                           font-weight:bold; padding:8px; margin:0; line-height:1; border-radius:8px; 
-                           transition:all 0.2s ease; display:flex; align-items:center; justify-content:center;"
-                    onmouseover="this.style.backgroundColor='rgba(231,76,60,0.1)'"
-                    onmouseout="this.style.backgroundColor='transparent'">
-                ✕
-            </button>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 隐藏的Streamlit按钮用于处理关闭事件
-        if st.button("", key="close_calendar_btn", help="关闭促销日历"):
-            st.session_state.show_calendar = False
-            st.rerun()
+        <hr style='margin:18px 0;'>
+        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
+        <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
+            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
+            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
+        </ul>
+        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>加拿大站:</b></div>
+        <ul style='font-size:16px; color:#333;'>
+            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
+            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
+        </ul>
+    </div>
+    <script>
+    const closeBtn = window.parent.document.getElementById('close-calendar-x');
+    if(closeBtn){
+        closeBtn.onclick = function(){
+            const streamlitDoc = window.parent.document;
+            const rerunButton = streamlitDoc.querySelector('button[kind=secondary]');
+            window.parent.parent._stState.show_calendar = false;
+            if(rerunButton) rerunButton.click();
+        }
+    }
+    window.addEventListener('message', function(e) {
+        if(e.data.type === 'close_calendar') {
+            window.parent.document.querySelector('iframe').style.display = 'none';
+        }
+    });
+    </script>
+    """, unsafe_allow_html=True)
 
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
