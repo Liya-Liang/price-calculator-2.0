@@ -30,6 +30,10 @@ st.markdown("""
     header {visibility: hidden;}
     .stDeployButton {visibility: hidden;}
     
+    /* 隐藏辅助按钮的容器 */
+    .element-container:has(button[key="show_help_btn_hidden"]) {display: none !important;}
+    .element-container:has(button[key="promo_calendar_btn_top_hidden"]) {display: none !important;}
+    
     /* 隐藏侧边栏控件 */
     section[data-testid="stSidebarNav"] {display: none !important;}
     .st-emotion-cache-1q1n0ol {display: none !important;}
