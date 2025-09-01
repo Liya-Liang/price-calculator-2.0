@@ -343,7 +343,7 @@ st.markdown("""
 # 促销规则配置
 PROMO_RULES = {
     "US": {
-        "regular": {
+        "日常促销": {
             "manualBestDeal": {"discount": 20},
             "selfServiceBestDeal": {"discount": 10},
             "lightningDeal": {"discount": 15},
@@ -351,7 +351,7 @@ PROMO_RULES = {
             "primeExclusive": {"discount": 5},
             "coupon": {"discount": 5}
         },
-        "major": {
+        "大促促销": {
             "manualBestDeal": {"discount": 30},
             "selfServiceBestDeal": {"discount": 15},
             "lightningDeal": {"discount": 20},
@@ -361,7 +361,7 @@ PROMO_RULES = {
         }
     },
     "CA": {
-        "regular": {
+        "日常促销": {
             "manualBestDeal": {"discount": 20},
             "selfServiceBestDeal": {"discount": 10},
             "lightningDeal": {"discount": 15},
@@ -369,7 +369,7 @@ PROMO_RULES = {
             "primeExclusive": {"discount": 5},
             "coupon": {"discount": 5}
         },
-        "major": {
+        "大促促销": {
             "manualBestDeal": {"discount": 30},
             "selfServiceBestDeal": {"discount": 15},
             "lightningDeal": {"discount": 20},
@@ -536,49 +536,61 @@ tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
 def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, hamp_net_price, selected_types, rules, was_price):
     results = {
         "prePromoMaxPrice": vrp * 0.95,
-        "promoMaxPrice": vrp,
+        "promoMaxPrice": None,
         "postPromoPrice": vrp * 0.95,
         "logic": []
     }
-    # 促销类型冲突和叠加逻辑
-    main_promos = {"manualBestDeal", "selfServiceBestDeal", "lightningDeal", "priceDiscount", "primeExclusive"}
+    main_promos = ["manualBestDeal", "selfServiceBestDeal", "lightningDeal", "priceDiscount", "primeExclusive"]
     coupon_selected = "coupon" in selected_types
     main_selected = [p for p in selected_types if p in main_promos]
+    # 冲突处理
     if len(main_selected) > 1:
         results["logic"].append("禁止：同一时间只能选择一个主促销类型（顶级促销/Z划算/秒杀/价格折扣/Prime专享折扣）")
-        results["promoMaxPrice"] = None
         return results
+    # 叠加提示
     if coupon_selected and main_selected:
         results["logic"].append("提示：价格将会叠加")
-    # 价格计算逻辑
-    min_promo_price = vrp
-    for promo_type in selected_types:
-        price = None
+    # 价格建议逻辑
+    price = None
+    # 主促销
+    if len(main_selected) == 1:
+        promo_type = main_selected[0]
+        discount = rules[promo_type]["discount"]
         if promo_type == "manualBestDeal":
-            # 主促销规则
-            discount = rules[promo_type]["discount"]
             price = vrp * (1 - discount / 100)
             price = min(price, hamp_net_price, was_price)
         elif promo_type == "selfServiceBestDeal":
-            discount = rules[promo_type]["discount"]
             price = vrp * (1 - discount / 100)
             price = min(price, hamp_net_price, was_price)
         elif promo_type == "lightningDeal":
-            discount = rules[promo_type]["discount"]
             price = vrp * (1 - discount / 100)
             price = min(price, hamp_net_price, was_price)
-        elif promo_type in ["priceDiscount", "primeExclusive"]:
-            discount = rules[promo_type]["discount"]
-            price = vrp * (1 - discount / 100)
+        elif promo_type == "priceDiscount":
+            price = vrp * 0.95
             price = min(price, t30_lowest_price_with_promo * 0.95, historical_price * 0.95)
-        elif promo_type == "coupon":
-            discount = rules[promo_type]["discount"]
+        elif promo_type == "primeExclusive":
             price = vrp * (1 - discount / 100)
-            price = min(price, was_price * 0.95)
+            price = min(price, t30_lowest_price * 0.95, historical_price * 0.95, was_price * 0.95, t30_lowest_price_with_promo)
+        results["logic"].append(f"{promo_type}: 建议价格 ${price:.2f}")
+    # 优惠券
+    if coupon_selected:
+        coupon_discount = rules["coupon"]["discount"]
+        coupon_price = vrp * (1 - coupon_discount / 100)
+        # 优惠券规则
+        coupon_price = min(coupon_price, was_price * 0.95)
+        # 当前价格须至多比was_price高30%（如有特殊规则可补充）
+        results["logic"].append(f"coupon: 建议价格 ${coupon_price:.2f}")
+        # 叠加逻辑
         if price is not None:
-            min_promo_price = min(min_promo_price, price)
-            results["logic"].append(f"{promo_type}: 建议价格 ${price:.2f}")
-    results["promoMaxPrice"] = min_promo_price
+            # 复合折扣
+            combined_price = price * (1 - coupon_discount / 100)
+            results["logic"].append(f"叠加后建议价格: ${combined_price:.2f}")
+            results["promoMaxPrice"] = combined_price
+        else:
+            results["promoMaxPrice"] = coupon_price
+    else:
+        if price is not None:
+            results["promoMaxPrice"] = price
     return results
 
 # 单个ASIN查询
@@ -593,7 +605,7 @@ with tab1:
         t30_lowest_price_with_promo = st.number_input("含促销T30最低价 ($)", min_value=0.0, step=0.01)
     with col2:
         market = st.selectbox("市场", ["US", "CA"])
-        promo_period = st.selectbox("促销时期", ["regular", "major"])
+        promo_period = st.selectbox("促销时期", ["日常促销", "大促促销"])
         promo_start_date = st.date_input("促销开始时间")
         promo_end_date = st.date_input("促销结束时间")
     
@@ -691,7 +703,7 @@ with tab2:
     
     with col1:
         batch_market = st.selectbox("市场", ["US", "CA"], key="batch_market")
-        batch_promo_period = st.selectbox("促销时期", ["regular", "major"], key="batch_promo_period")
+        batch_promo_period = st.selectbox("促销时期", ["日常促销", "大促促销"], key="batch_promo_period")
     
     with col2:
         batch_promo_start_date = st.date_input("促销开始时间", key="batch_start")
