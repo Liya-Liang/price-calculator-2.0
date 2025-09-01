@@ -595,7 +595,7 @@ with tab1:
     
     with col2:
         market = st.selectbox("市场", ["US", "CA"])
-        promo_type = st.selectbox("促销计划", ["with", "without"])
+            # promo_type 输入框已移除
         promo_period = st.selectbox("促销时期", ["regular", "major"])
         promo_start_date = st.date_input("促销开始时间")
         promo_end_date = st.date_input("促销结束时间")
