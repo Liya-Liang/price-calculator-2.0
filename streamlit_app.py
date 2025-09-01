@@ -734,8 +734,19 @@ with tab2:
                     historical_price = float(row.get('was_price', 27.99))
                     vrp = float(row.get('VRP', 29.99))
                     t30_lowest = float(row.get('HAMP Buybox Price', 25.99))
-                    
-                    pricing = calculate_pricing(historical_price, vrp, t30_lowest, batch_selected_promos, rules)
+                    t30_lowest_with_promo = float(row.get('HAMP Buybox Price Promo', t30_lowest))
+                    hamp_net_price = float(row.get('HAMP Net Price', t30_lowest))
+                    was_price = float(row.get('was_price', historical_price))
+                    pricing = calculate_pricing(
+                        historical_price,
+                        vrp,
+                        t30_lowest,
+                        t30_lowest_with_promo,
+                        hamp_net_price,
+                        batch_selected_promos,
+                        rules,
+                        was_price
+                    )
                     
                     results_list.append({
                         'ASIN': asin,
