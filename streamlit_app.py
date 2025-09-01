@@ -618,7 +618,7 @@ with tab1:
                 selected_promos.append(key)
     
     if st.button("生成价格规划", type="primary"):
-        if asin and historical_price and vrp and t30_lowest_price:
+        if asin and historical_price and vrp and t30_lowest_price and t30_lowest_price_with_promo:
             rules = PROMO_RULES[market][promo_period]
             results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
             
@@ -674,7 +674,6 @@ with tab1:
             st.line_chart(chart_df.set_index("日期"))
             st.markdown('</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
-            
         else:
             st.error("请填写所有必填字段")
 
