@@ -583,9 +583,9 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
 
 # 单个ASIN查询
 with tab1:
+    asin = st.text_input("ASIN", placeholder="输入ASIN")
     col1, col2 = st.columns(2)
     with col1:
-        asin = st.text_input("ASIN", placeholder="输入ASIN")
         historical_price = st.number_input("历史售价 ($)", min_value=0.0, step=0.01)
         rating = st.number_input("评分", min_value=0.0, max_value=5.0, step=0.1)
         vrp = st.number_input("VRP ($)", min_value=0.0, step=0.01)
