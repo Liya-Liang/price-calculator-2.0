@@ -633,93 +633,92 @@ with tab1:
     
     if st.button("生成价格规划", type="primary"):
         # 检查所有必填字段
+        all_fields_valid = True
         if not asin:
             st.error("请填写ASIN")
-            return
-        if not historical_price:
+            all_fields_valid = False
+        elif not historical_price:
             st.error("请填写历史售价")
-            return
-        if not rating:
+            all_fields_valid = False
+        elif not rating:
             st.error("请填写评分")
-            return
-        if not vrp:
+            all_fields_valid = False
+        elif not vrp:
             st.error("请填写VRP")
-            return
-        if not t30_lowest_price:
+            all_fields_valid = False
+        elif not t30_lowest_price:
             st.error("请填写T30最低价")
-            return
-        if not t30_lowest_price_with_promo:
+            all_fields_valid = False
+        elif not t30_lowest_price_with_promo:
             st.error("请填写含促销T30最低价")
-            return
-        if not selected_promos:
+            all_fields_valid = False
+        elif not selected_promos:
             st.error("请至少选择一种促销类型")
-            return
-        if not promo_start_date or not promo_end_date:
+            all_fields_valid = False
+        elif not promo_start_date or not promo_end_date:
             st.error("请设置促销开始和结束时间")
-            return
-        if promo_end_date < promo_start_date:
+            all_fields_valid = False
+        elif promo_end_date < promo_start_date:
             st.error("促销结束时间不能早于开始时间")
-            return
+            all_fields_valid = False
 
-        # 所有验证通过，继续处理
-        rules = PROMO_RULES[market][promo_period]
-        results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
-        
-        st.markdown('<div class="results-section">', unsafe_allow_html=True)
-        st.subheader("90天价格建议")
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h4>活动前最高可设价格</h4>
-                <div class="price-highlight">${results['prePromoMaxPrice']:.2f}</div>
-            </div>
-            """, unsafe_allow_html=True)
+        if all_fields_valid:
+            # 所有验证通过，继续处理
+            rules = PROMO_RULES[market][promo_period]
+            results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
             
-        with col2:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h4>活动期间最高可设价格</h4>
-                <div class="price-highlight" style="color: #28a745;">${results['promoMaxPrice']:.2f}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col3:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h4>活动后建议价格</h4>
-                <div class="price-highlight" style="color: #007bff;">${results['postPromoPrice']:.2f}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.subheader("价格建议逻辑")
-        for logic in results["logic"]:
-            st.write(f"• {logic}")
-        
-        # 图表数据
-        dates = [datetime.now() + timedelta(days=i) for i in range(90)]
-        chart_data = []
+            st.markdown('<div class="results-section">', unsafe_allow_html=True)
+            st.subheader("90天价格建议")
             
-        for date in dates:
-            if promo_start_date <= date.date() <= promo_end_date:
-                price = results["promoMaxPrice"]
-            elif date.date() > promo_end_date:
-                price = results["postPromoPrice"]
-            else:
-                price = results["prePromoMaxPrice"]
-            chart_data.append({"日期": date.strftime("%Y-%m-%d"), "建议价格": price})
-        
-        chart_df = pd.DataFrame(chart_data)
-        
-        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        st.subheader("90天价格趋势图")
-        st.line_chart(chart_df.set_index("日期"))
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <h4>活动前最高可设价格</h4>
+                    <div class="price-highlight">${results['prePromoMaxPrice']:.2f}</div>
+                </div>
+                """, unsafe_allow_html=True)
             
-        else:
-            st.error("请填写所有必填字段")
+            with col2:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <h4>活动期间最高可设价格</h4>
+                    <div class="price-highlight" style="color: #28a745;">${results['promoMaxPrice']:.2f}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col3:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <h4>活动后建议价格</h4>
+                    <div class="price-highlight" style="color: #007bff;">${results['postPromoPrice']:.2f}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            st.subheader("价格建议逻辑")
+            for logic in results["logic"]:
+                st.write(f"• {logic}")
+            
+            # 图表数据
+            dates = [datetime.now() + timedelta(days=i) for i in range(90)]
+            chart_data = []
+            
+            for date in dates:
+                if promo_start_date <= date.date() <= promo_end_date:
+                    price = results["promoMaxPrice"]
+                elif date.date() > promo_end_date:
+                    price = results["postPromoPrice"]
+                else:
+                    price = results["prePromoMaxPrice"]
+                chart_data.append({"日期": date.strftime("%Y-%m-%d"), "建议价格": price})
+            
+            chart_df = pd.DataFrame(chart_data)
+            
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("90天价格趋势图")
+            st.line_chart(chart_df.set_index("日期"))
+            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
 # 批量ASIN处理
 with tab2:
