@@ -615,7 +615,7 @@ with tab1:
                 selected_promos.append(key)
     
     if st.button("生成价格规划", type="primary"):
-        if asin and historical_price and vrp and t30_lowest_price:
+        if historical_price and vrp and t30_lowest_price:
             rules = PROMO_RULES[market][promo_period]
             results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
             
