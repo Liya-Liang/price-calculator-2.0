@@ -499,8 +499,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 促销日历弹窗按钮（右上角）
-if "show_calendar" not in st.session_state:
-    st.session_state.show_calendar = False
 
 # 促销日历弹窗（美化，右上角，支持关闭）
 if st.session_state.get("show_calendar", False):
@@ -527,24 +525,29 @@ if st.session_state.get("show_calendar", False):
     const closeBtn = window.parent.document.getElementById('close-calendar-x');
     if(closeBtn){
         closeBtn.onclick = function(){
-            const streamlitDoc = window.parent.document;
-            const rerunButton = streamlitDoc.querySelector('button[kind=secondary]');
-            window.parent.parent._stState.show_calendar = false;
-            if(rerunButton) rerunButton.click();
+            window.parent.postMessage({type: 'close_calendar'}, '*');
         }
     }
     window.addEventListener('message', function(e) {
         if(e.data.type === 'close_calendar') {
-            window.parent.document.querySelector('iframe').style.display = 'none';
+            // 发送请求到Streamlit后端
+            const streamlit = window.parent.Streamlit;
+            streamlit.setComponentValue({'type': 'close_calendar'});
         }
     });
     </script>
     """, unsafe_allow_html=True)
+    
+    # 检查组件返回值并更新状态
+    if st.session_state.get("_last_component_value", {}).get("type") == "close_calendar":
+        st.session_state.show_calendar = False
+        st.session_state._last_component_value = None
+        st.rerun()
 
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
 
-def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, hamp_net_price, selected_types, rules, was_price):
+def calculate_pricing(historical_price, vrp, t30_lowest_price, selected_types, rules):
     results = {
         "prePromoMaxPrice": vrp * 0.95,
         "promoMaxPrice": vrp,
@@ -629,9 +632,38 @@ with tab1:
                 selected_promos.append(key)
     
     if st.button("生成价格规划", type="primary"):
-        if asin and historical_price and vrp and t30_lowest_price:
-            rules = PROMO_RULES[market][promo_period]
-            results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
+        # 检查所有必填字段
+        if not asin:
+            st.error("请填写ASIN")
+            return
+        if not historical_price:
+            st.error("请填写历史售价")
+            return
+        if not rating:
+            st.error("请填写评分")
+            return
+        if not vrp:
+            st.error("请填写VRP")
+            return
+        if not t30_lowest_price:
+            st.error("请填写T30最低价")
+            return
+        if not t30_lowest_price_with_promo:
+            st.error("请填写含促销T30最低价")
+            return
+        if not selected_promos:
+            st.error("请至少选择一种促销类型")
+            return
+        if not promo_start_date or not promo_end_date:
+            st.error("请设置促销开始和结束时间")
+            return
+        if promo_end_date < promo_start_date:
+            st.error("促销结束时间不能早于开始时间")
+            return
+
+        # 所有验证通过，继续处理
+        rules = PROMO_RULES[market][promo_period]
+        results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
             
             st.markdown('<div class="results-section">', unsafe_allow_html=True)
             st.subheader("90天价格建议")
