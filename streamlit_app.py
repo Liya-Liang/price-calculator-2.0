@@ -664,59 +664,59 @@ with tab1:
         # 所有验证通过，继续处理
         rules = PROMO_RULES[market][promo_period]
         results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
+        
+        st.markdown('<div class="results-section">', unsafe_allow_html=True)
+        st.subheader("90天价格建议")
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h4>活动前最高可设价格</h4>
+                <div class="price-highlight">${results['prePromoMaxPrice']:.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
             
-            st.markdown('<div class="results-section">', unsafe_allow_html=True)
-            st.subheader("90天价格建议")
+        with col2:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h4>活动期间最高可设价格</h4>
+                <div class="price-highlight" style="color: #28a745;">${results['promoMaxPrice']:.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h4>活动后建议价格</h4>
+                <div class="price-highlight" style="color: #007bff;">${results['postPromoPrice']:.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.subheader("价格建议逻辑")
+        for logic in results["logic"]:
+            st.write(f"• {logic}")
+        
+        # 图表数据
+        dates = [datetime.now() + timedelta(days=i) for i in range(90)]
+        chart_data = []
             
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动前最高可设价格</h4>
-                    <div class="price-highlight">${results['prePromoMaxPrice']:.2f}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            with col2:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动期间最高可设价格</h4>
-                    <div class="price-highlight" style="color: #28a745;">${results['promoMaxPrice']:.2f}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            with col3:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h4>活动后建议价格</h4>
-                    <div class="price-highlight" style="color: #007bff;">${results['postPromoPrice']:.2f}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            st.subheader("价格建议逻辑")
-            for logic in results["logic"]:
-                st.write(f"• {logic}")
-            
-            # 图表数据
-            dates = [datetime.now() + timedelta(days=i) for i in range(90)]
-            chart_data = []
-            
-            for date in dates:
-                if promo_start_date <= date.date() <= promo_end_date:
-                    price = results["promoMaxPrice"]
-                elif date.date() > promo_end_date:
-                    price = results["postPromoPrice"]
-                else:
-                    price = results["prePromoMaxPrice"]
-                chart_data.append({"日期": date.strftime("%Y-%m-%d"), "建议价格": price})
-            
-            chart_df = pd.DataFrame(chart_data)
-            
-            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-            st.subheader("90天价格趋势图")
-            st.line_chart(chart_df.set_index("日期"))
-            st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+        for date in dates:
+            if promo_start_date <= date.date() <= promo_end_date:
+                price = results["promoMaxPrice"]
+            elif date.date() > promo_end_date:
+                price = results["postPromoPrice"]
+            else:
+                price = results["prePromoMaxPrice"]
+            chart_data.append({"日期": date.strftime("%Y-%m-%d"), "建议价格": price})
+        
+        chart_df = pd.DataFrame(chart_data)
+        
+        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+        st.subheader("90天价格趋势图")
+        st.line_chart(chart_df.set_index("日期"))
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
             
         else:
             st.error("请填写所有必填字段")
