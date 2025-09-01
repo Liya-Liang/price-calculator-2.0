@@ -502,12 +502,12 @@ st.markdown("""
 
 # 促销日历弹窗（美化，右上角，支持关闭）
 if st.session_state.get("show_calendar", False):
-    # 弹窗内容和美化的X按钮
+    # 弹窗内容和美化的右上角 Streamlit 关闭按钮
+    import streamlit.components.v1 as components
     st.markdown("""
     <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
-            <button id="close-calendar-x" style="background:none; border:none; font-size:32px; color:#e74c3c; cursor:pointer; font-weight:bold; margin-left:12px; border-radius:8px; transition:background 0.2s; padding:2px 10px;" onmouseover="this.style.background='#fdecea'" onmouseout="this.style.background='none'">✕</button>
         </div>
         <hr style='margin:18px 0;'>
         <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
@@ -521,37 +521,18 @@ if st.session_state.get("show_calendar", False):
             <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
         </ul>
     </div>
-    <script>
-    // 等待 iframe 加载完成
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            const closeBtn = window.parent.document.getElementById('close-calendar-x');
-            if(closeBtn){
-                closeBtn.onclick = function(){
-                    // 更新状态
-                    window.parent.Streamlit.setComponentValue({action: 'close_calendar'});
-                    // 直接关闭弹窗
-                    const calendarDiv = closeBtn.closest('div[style*="position:fixed"]');
-                    if(calendarDiv) {
-                        calendarDiv.style.display = 'none';
-                    }
-                }
-            }
-        }, 100);
-    });
-    </script>
     """, unsafe_allow_html=True)
-    
-    # 如果收到关闭信号，更新状态
-    if st.session_state.get("_stale_unsafe_component_value", {}).get("action") == "close_calendar":
-        st.session_state.show_calendar = False
-        del st.session_state._stale_unsafe_component_value
-        st.rerun()
+    # 右上角 Streamlit 关闭按钮（浮动在弹窗右上角）
+    close_calendar_col = st.columns([0.85, 0.15])
+    with close_calendar_col[1]:
+        if st.button("✕", key="close_calendar_x"):
+            st.session_state.show_calendar = False
+            st.rerun()
 
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
 
-def calculate_pricing(historical_price, vrp, t30_lowest_price, selected_types, rules):
+def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, hamp_net_price, selected_types, rules, was_price):
     results = {
         "prePromoMaxPrice": vrp * 0.95,
         "promoMaxPrice": vrp,
@@ -592,7 +573,7 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, selected_types, r
         elif promo_type == "coupon":
             discount = rules[promo_type]["discount"]
             price = vrp * (1 - discount / 100)
-            price = min(price, t30_lowest_price_with_promo * 0.95)
+            price = min(price, was_price * 0.95)
         if price is not None:
             min_promo_price = min(min_promo_price, price)
             results["logic"].append(f"{promo_type}: 建议价格 ${price:.2f}")
@@ -636,38 +617,7 @@ with tab1:
                 selected_promos.append(key)
     
     if st.button("生成价格规划", type="primary"):
-        # 检查所有必填字段
-        all_fields_valid = True
-        if not asin:
-            st.error("请填写ASIN")
-            all_fields_valid = False
-        elif not historical_price:
-            st.error("请填写历史售价")
-            all_fields_valid = False
-        elif not rating:
-            st.error("请填写评分")
-            all_fields_valid = False
-        elif not vrp:
-            st.error("请填写VRP")
-            all_fields_valid = False
-        elif not t30_lowest_price:
-            st.error("请填写T30最低价")
-            all_fields_valid = False
-        elif not t30_lowest_price_with_promo:
-            st.error("请填写含促销T30最低价")
-            all_fields_valid = False
-        elif not selected_promos:
-            st.error("请至少选择一种促销类型")
-            all_fields_valid = False
-        elif not promo_start_date or not promo_end_date:
-            st.error("请设置促销开始和结束时间")
-            all_fields_valid = False
-        elif promo_end_date < promo_start_date:
-            st.error("促销结束时间不能早于开始时间")
-            all_fields_valid = False
-
-        if all_fields_valid:
-            # 所有验证通过，继续处理
+        if asin and historical_price and vrp and t30_lowest_price:
             rules = PROMO_RULES[market][promo_period]
             results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
             
@@ -723,6 +673,9 @@ with tab1:
             st.line_chart(chart_df.set_index("日期"))
             st.markdown('</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
+            
+        else:
+            st.error("请填写所有必填字段")
 
 # 批量ASIN处理
 with tab2:
