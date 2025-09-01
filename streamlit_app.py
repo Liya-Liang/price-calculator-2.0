@@ -583,17 +583,19 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
 
 # 单个ASIN查询
 with tab1:
-    st.markdown("<div style='margin-bottom: 16px;'></div>", unsafe_allow_html=True)
-    asin = st.text_input("ASIN", placeholder="输入ASIN")
     col1, col2 = st.columns(2)
+    
     with col1:
+        asin = st.text_input("ASIN", placeholder="输入ASIN")
         historical_price = st.number_input("历史售价 ($)", min_value=0.0, step=0.01)
         rating = st.number_input("评分", min_value=0.0, max_value=5.0, step=0.1)
         vrp = st.number_input("VRP ($)", min_value=0.0, step=0.01)
         t30_lowest_price = st.number_input("T30最低价 ($)", min_value=0.0, step=0.01)
-        t30_lowest_price_with_promo = st.number_input("含促销T30最低价 ($)", min_value=0.0, step=0.01)
+    
     with col2:
+        t30_lowest_price_with_promo = st.number_input("含促销T30最低价 ($)", min_value=0.0, step=0.01)
         market = st.selectbox("市场", ["US", "CA"])
+            # promo_type 输入框已移除
         promo_period = st.selectbox("促销时期", ["regular", "major"])
         promo_start_date = st.date_input("促销开始时间")
         promo_end_date = st.date_input("促销结束时间")
@@ -616,7 +618,7 @@ with tab1:
                 selected_promos.append(key)
     
     if st.button("生成价格规划", type="primary"):
-        if asin and historical_price and vrp and t30_lowest_price and t30_lowest_price_with_promo:
+        if asin and historical_price and vrp and t30_lowest_price:
             rules = PROMO_RULES[market][promo_period]
             results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
             
@@ -672,6 +674,7 @@ with tab1:
             st.line_chart(chart_df.set_index("日期"))
             st.markdown('</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
+            
         else:
             st.error("请填写所有必填字段")
 
