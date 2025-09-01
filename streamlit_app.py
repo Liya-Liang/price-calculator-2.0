@@ -583,6 +583,7 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
 
 # 单个ASIN查询
 with tab1:
+    st.markdown("<div style='margin-bottom: 16px;'></div>", unsafe_allow_html=True)
     asin = st.text_input("ASIN", placeholder="输入ASIN")
     col1, col2 = st.columns(2)
     with col1:
