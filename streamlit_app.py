@@ -467,7 +467,6 @@ if st.session_state.show_help:
         <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
             <li>快速计算商品活动前价格要求，并给出价格策略建议</li>
             <li>支持单条计算和批量导入/导出</li>
-            <li>支持CSV和XLSX格式</li>
             <li>支持实时可视化结果</li>
         </ul>
         <div style='font-size:18px; margin-bottom:18px;'><b>使用方法</b></div>
