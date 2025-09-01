@@ -400,7 +400,7 @@ with col2:
         st.rerun()
 with col3:
     if st.button("🗓️ 促销日历", key="promo_calendar_btn_top", help="点击查看促销日历"):
-        st.session_state.show_calendar = True
+        st.session_state.show_calendar = not st.session_state.get("show_calendar", False)
         st.rerun()
 
 # CSS样式统一
@@ -502,10 +502,14 @@ st.markdown("""
 
 # 促销日历弹窗（美化，右上角，支持关闭）
 if st.session_state.get("show_calendar", False):
-    # 弹窗内容和美化的右上角 Streamlit 关闭按钮
-    import streamlit.components.v1 as components
+    # 弹窗内容和美化的右上角 Streamlit 关闭按钮（绝对定位在弹窗内部右上角）
     st.markdown("""
     <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
+        <div style="position:absolute; top:18px; right:18px;">
+            <form action="#" method="post">
+                <button name="close_calendar_x" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;font-size:22px;width:36px;height:36px;border-radius:50%;cursor:pointer;">✕</button>
+            </form>
+        </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
         </div>
@@ -522,12 +526,10 @@ if st.session_state.get("show_calendar", False):
         </ul>
     </div>
     """, unsafe_allow_html=True)
-    # 右上角 Streamlit 关闭按钮（浮动在弹窗右上角）
-    close_calendar_col = st.columns([0.85, 0.15])
-    with close_calendar_col[1]:
-        if st.button("✕", key="close_calendar_x"):
-            st.session_state.show_calendar = False
-            st.rerun()
+    # Streamlit 关闭按钮逻辑
+    if st.form_submit_button("✕", key="close_calendar_x"):
+        st.session_state.show_calendar = False
+        st.rerun()
 
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
