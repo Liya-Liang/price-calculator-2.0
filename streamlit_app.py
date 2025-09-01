@@ -583,7 +583,11 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
 
 # 单个ASIN查询
 with tab1:
-    asin = st.text_input("ASIN", placeholder="输入ASIN")
+    # ASIN输入框单独放在最前面
+    asin = st.text_input("ASIN", placeholder="输入ASIN", key="asin_input")
+    st.write("")  # 添加一个空行作为间隔
+    
+    # 其他输入项放在两列中
     col1, col2 = st.columns(2)
     with col1:
         historical_price = st.number_input("历史售价 ($)", min_value=0.0, step=0.01)
