@@ -617,7 +617,17 @@ with tab1:
     if st.button("生成价格规划", type="primary"):
         if historical_price and vrp and t30_lowest_price:
             rules = PROMO_RULES[market][promo_period]
-            results = calculate_pricing(historical_price, vrp, t30_lowest_price, selected_promos, rules)
+            # 补齐参数，使用0作为默认值
+            results = calculate_pricing(
+                historical_price,
+                vrp,
+                t30_lowest_price,
+                t30_lowest_price_with_promo if 't30_lowest_price_with_promo' in locals() else 0,
+                0,  # hamp_net_price
+                selected_promos,
+                rules,
+                0   # was_price
+            )
             
             st.markdown('<div class="results-section">', unsafe_allow_html=True)
             st.subheader("90天价格建议")
