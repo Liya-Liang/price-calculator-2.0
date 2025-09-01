@@ -522,26 +522,30 @@ if st.session_state.get("show_calendar", False):
         </ul>
     </div>
     <script>
-    const closeBtn = window.parent.document.getElementById('close-calendar-x');
-    if(closeBtn){
-        closeBtn.onclick = function(){
-            window.parent.postMessage({type: 'close_calendar'}, '*');
-        }
-    }
-    window.addEventListener('message', function(e) {
-        if(e.data.type === 'close_calendar') {
-            // 发送请求到Streamlit后端
-            const streamlit = window.parent.Streamlit;
-            streamlit.setComponentValue({'type': 'close_calendar'});
-        }
+    // 等待 iframe 加载完成
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            const closeBtn = window.parent.document.getElementById('close-calendar-x');
+            if(closeBtn){
+                closeBtn.onclick = function(){
+                    // 更新状态
+                    window.parent.Streamlit.setComponentValue({action: 'close_calendar'});
+                    // 直接关闭弹窗
+                    const calendarDiv = closeBtn.closest('div[style*="position:fixed"]');
+                    if(calendarDiv) {
+                        calendarDiv.style.display = 'none';
+                    }
+                }
+            }
+        }, 100);
     });
     </script>
     """, unsafe_allow_html=True)
     
-    # 检查组件返回值并更新状态
-    if st.session_state.get("_last_component_value", {}).get("type") == "close_calendar":
+    # 如果收到关闭信号，更新状态
+    if st.session_state.get("_stale_unsafe_component_value", {}).get("action") == "close_calendar":
         st.session_state.show_calendar = False
-        st.session_state._last_component_value = None
+        del st.session_state._stale_unsafe_component_value
         st.rerun()
 
 # 标签页
@@ -588,7 +592,7 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, selected_types, r
         elif promo_type == "coupon":
             discount = rules[promo_type]["discount"]
             price = vrp * (1 - discount / 100)
-            price = min(price, was_price * 0.95)
+            price = min(price, t30_lowest_price_with_promo * 0.95)
         if price is not None:
             min_promo_price = min(min_promo_price, price)
             results["logic"].append(f"{promo_type}: 建议价格 ${price:.2f}")
