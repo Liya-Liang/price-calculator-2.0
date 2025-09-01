@@ -533,6 +533,11 @@ if st.session_state.get("show_calendar", False):
 # 标签页
 tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
 
+# 单个ASIN查询界面
+with tab1:
+    asin = st.text_input("ASIN", placeholder="输入ASIN", key="asin_input", label_visibility="visible")
+    st.write(" ")  # 添加空行作为间隔
+
 def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, hamp_net_price, selected_types, rules, was_price):
     results = {
         "prePromoMaxPrice": vrp * 0.95,
@@ -581,25 +586,20 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
     results["promoMaxPrice"] = min_promo_price
     return results
 
-# 单个ASIN查询
-with tab1:
-    # ASIN输入框单独放在最前面
-    asin = st.text_input("ASIN", placeholder="输入ASIN", key="asin_input")
-    st.write("")  # 添加一个空行作为间隔
-    
-    # 其他输入项放在两列中
-    col1, col2 = st.columns(2)
-    with col1:
-        historical_price = st.number_input("历史售价 ($)", min_value=0.0, step=0.01)
-        rating = st.number_input("评分", min_value=0.0, max_value=5.0, step=0.1)
-        vrp = st.number_input("VRP ($)", min_value=0.0, step=0.01)
-        t30_lowest_price = st.number_input("T30最低价 ($)", min_value=0.0, step=0.01)
-    with col2:
-        t30_lowest_price_with_promo = st.number_input("含促销T30最低价 ($)", min_value=0.0, step=0.01)
-        market = st.selectbox("市场", ["US", "CA"])
-        promo_period = st.selectbox("促销时期", ["regular", "major"])
-        promo_start_date = st.date_input("促销开始时间")
-        promo_end_date = st.date_input("促销结束时间")
+# 创建两列布局
+col1, col2 = st.columns(2)
+
+with col1:
+    historical_price = st.number_input("历史售价 ($)", min_value=0.0, step=0.01)
+    rating = st.number_input("评分", min_value=0.0, max_value=5.0, step=0.1)
+    vrp = st.number_input("VRP ($)", min_value=0.0, step=0.01)
+    t30_lowest_price = st.number_input("T30最低价 ($)", min_value=0.0, step=0.01)
+with col2:
+    t30_lowest_price_with_promo = st.number_input("含促销T30最低价 ($)", min_value=0.0, step=0.01)
+    market = st.selectbox("市场", ["US", "CA"])
+    promo_period = st.selectbox("促销时期", ["regular", "major"])
+    promo_start_date = st.date_input("促销开始时间")
+    promo_end_date = st.date_input("促销结束时间")
     
     st.subheader("促销类型 (可多选)")
     promo_options = {
