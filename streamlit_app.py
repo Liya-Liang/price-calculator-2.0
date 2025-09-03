@@ -800,11 +800,11 @@ with tab2:
                         'HAMP Net Price': hamp_net_price,
                         'VRP': vrp,
                         'was_price': historical_price,
-                        '活动类型': ', '.join(batch_selected_promos),
-                        '活动时间': f"{batch_promo_start_date} to {batch_promo_end_date}",
-                        '活动前建议价格': f"${pricing['prePromoMaxPrice']:.2f}",
-                        '活动中建议价格': f"${pricing['promoMaxPrice']:.2f}",
-                        '活动后建议价格': f"${pricing['postPromoPrice']:.2f}"
+                        'Promotion Type': ', '.join(batch_selected_promos),
+                        'Promotion Period': f"{batch_promo_start_date} to {batch_promo_end_date}",
+                        'prePromoMaxPrice': f"${pricing['prePromoMaxPrice']:.2f}",
+                        'promoMaxPrice': f"${pricing['promoMaxPrice']:.2f}",
+                        'postPromoPrice': f"${pricing['postPromoPrice']:.2f}"
                     })
                 
                 results_df = pd.DataFrame(results_list)
