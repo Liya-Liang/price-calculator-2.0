@@ -534,9 +534,9 @@ tab1, tab2 = st.tabs(["🔍 单个ASIN查询", "📊 批量ASIN处理"])
 
 def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_with_promo, hamp_net_price, selected_types, rules, was_price):
     results = {
-        "prePromoMaxPrice": vrp * 0.95,
+        "prePromoMaxPrice": vrp,
         "promoMaxPrice": None,
-        "postPromoPrice": vrp * 0.95,
+        "postPromoPrice": vrp,
         "logic": []
     }
     main_promos = ["manualBestDeal", "selfServiceBestDeal", "lightningDeal", "priceDiscount", "primeExclusive"]
