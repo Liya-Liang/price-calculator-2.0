@@ -549,27 +549,42 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
     # 叠加提示
     if coupon_selected and main_selected:
         results["logic"].append("提示：价格将会叠加")
-    # 价格建议逻辑
     price = None
     # 主促销
     if len(main_selected) == 1:
         promo_type = main_selected[0]
         discount = rules[promo_type]["discount"]
-        if promo_type == "manualBestDeal":
-            price = vrp * (1 - discount / 100)
-            price = min(price, hamp_net_price, was_price)
-        elif promo_type == "selfServiceBestDeal":
-            price = vrp * (1 - discount / 100)
-            price = min(price, hamp_net_price, was_price)
-        elif promo_type == "lightningDeal":
-            price = vrp * (1 - discount / 100)
-            price = min(price, hamp_net_price, was_price)
-        elif promo_type == "priceDiscount":
-            price = vrp * 0.95
-            price = min(price, t30_lowest_price_with_promo * 0.95, historical_price * 0.95)
-        elif promo_type == "primeExclusive":
-            price = vrp * (1 - discount / 100)
-            price = min(price, t30_lowest_price * 0.95, historical_price * 0.95, was_price * 0.95, t30_lowest_price_with_promo)
+        # 日常促销规则
+        if rules[promo_type]["discount"] in [20, 10, 15, 5]:
+            if promo_type == "manualBestDeal":
+                price = vrp * 0.8
+                price = min(price, hamp_net_price, was_price)
+            elif promo_type == "selfServiceBestDeal":
+                price = vrp * 0.9
+                price = min(price, hamp_net_price, was_price)
+            elif promo_type == "lightningDeal":
+                price = vrp * 0.85
+                price = min(price, hamp_net_price, was_price)
+            elif promo_type in ["priceDiscount", "primeExclusive"]:
+                price = vrp * 0.95
+                price = min(price, t30_lowest_price_with_promo * 0.95, historical_price * 0.95)
+        # 大促促销规则
+        else:
+            if promo_type == "manualBestDeal":
+                price = vrp * 0.7
+                price = min(price, hamp_net_price, was_price * 0.95)
+            elif promo_type == "selfServiceBestDeal":
+                price = vrp * 0.85
+                price = min(price, hamp_net_price, was_price * 0.95)
+            elif promo_type == "lightningDeal":
+                price = vrp * 0.8
+                price = min(price, hamp_net_price, was_price * 0.95)
+            elif promo_type == "priceDiscount":
+                price = vrp * 0.95
+                price = min(price, t30_lowest_price_with_promo * 0.95, historical_price * 0.95)
+            elif promo_type == "primeExclusive":
+                price = vrp * 0.85
+                price = min(price, t30_lowest_price * 0.95, historical_price * 0.95, was_price * 0.95, t30_lowest_price_with_promo)
         results["logic"].append(f"{promo_type}: 建议价格 ${price:.2f}")
     # 优惠券
     if coupon_selected:
@@ -577,7 +592,8 @@ def calculate_pricing(historical_price, vrp, t30_lowest_price, t30_lowest_price_
         coupon_price = vrp * (1 - coupon_discount / 100)
         # 优惠券规则
         coupon_price = min(coupon_price, was_price * 0.95)
-        # 当前价格须至多比was_price高30%（如有特殊规则可补充）
+        # 当前价格须至多比was_price高30%
+        coupon_price = min(coupon_price, was_price * 1.3)
         results["logic"].append(f"coupon: 建议价格 ${coupon_price:.2f}")
         # 叠加逻辑
         if price is not None:
