@@ -628,16 +628,17 @@ with tab1:
     if st.button("生成价格规划", type="primary"):
         if historical_price and vrp and t30_lowest_price:
             rules = PROMO_RULES[market][promo_period]
-            # 补齐参数，使用0作为默认值
+            hamp_net_price = historical_price if historical_price else vrp
+            was_price = historical_price if historical_price else vrp
             results = calculate_pricing(
                 historical_price,
                 vrp,
                 t30_lowest_price,
-                t30_lowest_price_with_promo if 't30_lowest_price_with_promo' in locals() else 0,
-                0,  # hamp_net_price
+                t30_lowest_price_with_promo if 't30_lowest_price_with_promo' in locals() else t30_lowest_price,
+                hamp_net_price,
                 selected_promos,
                 rules,
-                0   # was_price
+                was_price
             )
             
             st.markdown('<div class="results-section">', unsafe_allow_html=True)
@@ -656,7 +657,9 @@ with tab1:
                 st.markdown(f"""
                 <div class="metric-card">
                     <h4>活动期间最高可设价格</h4>
-                    <div class="price-highlight" style="color: #28a745;">${results['promoMaxPrice']:.2f}</div>
+                    <div class="price-highlight" style="color: #28a745;">
+                        {'无建议' if results['promoMaxPrice'] is None else f'${results["promoMaxPrice"]:.2f}'}
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
             
