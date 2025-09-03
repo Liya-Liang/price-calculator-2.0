@@ -809,7 +809,7 @@ with tab2:
                 
                 results_df = pd.DataFrame(results_list)
                 # 调整列顺序，HAMP Net Price为第三列
-                col_order = ['ASIN', 'HAMP Buybox Price', 'HAMP Net Price', 'VRP', 'was_price', '活动类型', '活动时间', '活动前建议价格', '活动中建议价格', '活动后建议价格']
+                col_order = ['ASIN', 'HAMP Buybox Price', 'HAMP Net Price', 'VRP', 'was_price', 'Promotion Type', 'Promotion Period', 'prePromoMaxPrice', 'promoMaxPrice', 'postPromoPrice']
                 results_df = results_df[col_order]
                 
                 st.markdown('<div class="results-section">', unsafe_allow_html=True)
