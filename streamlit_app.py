@@ -504,22 +504,50 @@ if st.session_state.get("show_calendar", False):
     # 弹窗内容和美化的右上角 Streamlit 关闭按钮
     import streamlit.components.v1 as components
     st.markdown("""
-    <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:340px; max-width:420px; animation: fadeInUp 0.5s;">
+    <div style="position:fixed; top:32px; right:32px; z-index:9999; background: linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%); border-radius:22px; box-shadow:0 12px 48px rgba(102,126,234,0.18); padding:40px 48px; min-width:400px; max-width:520px; animation: fadeInUp 0.5s;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h2 style='margin:0; color:#4b3fa7;'>促销日历</h2>
+            <h2 style='margin:0; color:#4b3fa7;'>2025促销日历</h2>
             <div id="close-calendar-x-placeholder"></div>
         </div>
         <hr style='margin:18px 0;'>
-        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>美国站:</b></div>
-        <ul style='font-size:16px; color:#333; margin-bottom:18px;'>
-            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
-            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
-        </ul>
-        <div style='font-size:18px; color:#333; margin-bottom:18px;'><b>加拿大站:</b></div>
-        <ul style='font-size:16px; color:#333;'>
-            <li>Prime big deal day：<span style='color:#e67e22;'>待官宣</span></li>
-            <li>BFCM：<span style='color:#667eea;'>2025年11月20日-12月1日</span></li>
-        </ul>
+        <div style='font-size:18px; color:#333; margin-bottom:10px;'><b style="color:#4b3fa7;">美国 US</b></div>
+        <table style="width:100%; font-size:15px; margin-bottom:18px; border-collapse:collapse;">
+            <thead>
+                <tr style="background:#e3e6f3; color:#4b3fa7;">
+                    <th style="padding:6px 8px; border-radius:8px 0 0 8px;">Timeline</th>
+                    <th style="padding:6px 8px; border-radius:0 8px 8px 0;">Event</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>6/2/2025-9/25/2025</td><td>Back to School/Off to College</td></tr>
+                <tr><td>8/22/2025-10/31/2025</td><td>Halloween</td></tr>
+                <tr><td>8/22/2025 - 09/1/2025</td><td>Labor Day Sale</td></tr>
+                <tr><td>TBD</td><td>Prime Big Deal Day</td></tr>
+                <tr><td>11/20/2025 – 12/01/2025</td><td>Black Friday & Cyber Monday</td></tr>
+                <tr><td>12/13/2025 - 12/23/2025</td><td>Last Min Gifting</td></tr>
+                <tr><td>12/20/2025</td><td>New this year - for Super Saturday</td></tr>
+                <tr><td>12/23/2025 -1/12/2026</td><td>Winter Sale</td></tr>
+                <tr><td>12/20/2025-1/27/2026</td><td>New Year, Now You</td></tr>
+            </tbody>
+        </table>
+        <div style='font-size:18px; color:#333; margin-bottom:10px;'><b style="color:#4b3fa7;">加拿大 CA</b></div>
+        <table style="width:100%; font-size:15px; margin-bottom:8px; border-collapse:collapse;">
+            <thead>
+                <tr style="background:#e3e6f3; color:#4b3fa7;">
+                    <th style="padding:6px 8px; border-radius:8px 0 0 8px;">Timeline</th>
+                    <th style="padding:6px 8px; border-radius:0 8px 8px 0;">Event</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>6/25/2025-9/6/2025</td><td>Back to School/Off to College</td></tr>
+                <tr><td>07/8/2025-07/11/2025</td><td>Prime Day</td></tr>
+                <tr><td>TBD</td><td>Halloween</td></tr>
+                <tr><td>TBD</td><td>PBDD</td></tr>
+                <tr><td>TBD</td><td>BFCM</td></tr>
+                <tr><td>12/19/2025 - 12/26/2025</td><td>Boxing Day</td></tr>
+                <tr><td>01/02/2026 -01/31/2026</td><td>New Year, Now You</td></tr>
+            </tbody>
+        </table>
     </div>
     """, unsafe_allow_html=True)
     # 关闭按钮放到弹窗内容最上方右侧，与标题同行
@@ -769,6 +797,7 @@ with tab2:
                     results_list.append({
                         'ASIN': asin,
                         'HAMP Buybox Price': t30_lowest,
+                        'HAMP Net Price': hamp_net_price,
                         'VRP': vrp,
                         'was_price': historical_price,
                         '活动类型': ', '.join(batch_selected_promos),
@@ -779,12 +808,15 @@ with tab2:
                     })
                 
                 results_df = pd.DataFrame(results_list)
+                # 调整列顺序，HAMP Net Price为第三列
+                col_order = ['ASIN', 'HAMP Buybox Price', 'HAMP Net Price', 'VRP', 'was_price', '活动类型', '活动时间', '活动前建议价格', '活动中建议价格', '活动后建议价格']
+                results_df = results_df[col_order]
                 
                 st.markdown('<div class="results-section">', unsafe_allow_html=True)
                 st.subheader("批量处理结果")
                 st.dataframe(results_df)
                 
-                csv = results_df.to_csv(index=False)
+                csv = results_df.to_csv(index=False, encoding='utf-8-sig')
                 st.download_button(
                     label="下载结果",
                     data=csv,
